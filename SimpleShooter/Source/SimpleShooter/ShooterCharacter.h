@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "ShooterCharacter.generated.h"
 
+class AGunBase;
+
 UCLASS()
 class SIMPLESHOOTER_API AShooterCharacter : public ACharacter
 {
@@ -34,6 +36,12 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float RotationRateRight = 10.f;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AGunBase> GunClass;
+
+	UPROPERTY()
+	AGunBase* Gun; 
 	
 	
 	/** FUNCTIONS */
@@ -44,5 +52,7 @@ private:
 	void LookUpRate(float AxisValue); /** Look Up / Down with controller */
 
 	void LookRightRate(float AxisValue); /** Look Right / Left with controller */
+
+	void Shoot(); 
 
 };

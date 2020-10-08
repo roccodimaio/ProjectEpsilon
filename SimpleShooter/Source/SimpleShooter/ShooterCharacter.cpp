@@ -2,6 +2,7 @@
 
 
 #include "ShooterCharacter.h"
+#include "GunBase.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -15,7 +16,15 @@ AShooterCharacter::AShooterCharacter()
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	Gun = GetWorld()->SpawnActor<AGunBase>(GunClass);
+
+	// Hide bone from mesh (rifle on Wraith character)
+	GetMesh()->HideBoneByName(TEXT("weapon_r"), EPhysBodyOp::PBO_None);
+
+	// Attached Gun to the RightHandWeaponSocket socket on the ShooterCharacter
+	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("RightHandWeaponSocket"));
+	Gun->SetOwner(this); 
 }
 
 // Called every frame
@@ -37,6 +46,7 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis(TEXT("LookRight"), this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis(TEXT("LookRightRate"), this, &AShooterCharacter::LookRightRate);
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ACharacter::Jump); 
+	PlayerInputComponent->BindAction(TEXT("Shoot"), IE_Pressed, this, &AShooterCharacter::Shoot); 
 
 }
 
@@ -62,6 +72,14 @@ void AShooterCharacter::LookRightRate(float AxisValue)
 {
 	// Identify the direction and distance to rotate per frame
 	AddControllerYawInput(AxisValue * RotationRateRight * GetWorld()->GetDeltaSeconds());
+}
+
+void AShooterCharacter::Shoot()
+{
+	if (Gun)
+	{
+		Gun->PullTrigger();
+	}
 }
 
 
