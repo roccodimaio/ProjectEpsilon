@@ -17,6 +17,8 @@ void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	Health = MaxHealth;
+
 	Gun = GetWorld()->SpawnActor<AGunBase>(GunClass);
 
 	// Hide bone from mesh (rifle on Wraith character)
@@ -48,6 +50,17 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ACharacter::Jump); 
 	PlayerInputComponent->BindAction(TEXT("Shoot"), IE_Pressed, this, &AShooterCharacter::Shoot); 
 
+}
+
+float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	Health = FMath::Clamp(Health - DamageToApply, 0.f, MaxHealth);
+		
+	UE_LOG(LogTemp, Warning, TEXT("Take Damage; Remaining health at %f!"), Health);
+
+	return DamageToApply;
 }
 
 void AShooterCharacter::MoveForward(float AxisValue)
