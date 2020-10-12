@@ -17,6 +17,9 @@ public:
 	// Sets default values for this character's properties
 	AShooterCharacter();
 
+	/** FUNCTIONS */
+	void Shoot();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -29,6 +32,9 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override; 
+
+	UFUNCTION(BlueprintPure)
+	bool IsDead() const;
 
 private:
 
@@ -60,7 +66,5 @@ private:
 	void LookUpRate(float AxisValue); /** Look Up / Down with controller */
 
 	void LookRightRate(float AxisValue); /** Look Right / Left with controller */
-
-	void Shoot(); 
 
 };

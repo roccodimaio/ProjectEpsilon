@@ -60,11 +60,19 @@ void AGunBase::PullTrigger()
 
 	FVector End = Location + Rotation.Vector() * MaxRange;
 	FHitResult HitResult;
+	
+	FCollisionQueryParams Params; 
+
+	// Ignore this (Gun) when line tracing
+	Params.AddIgnoredActor(this);
+
+	// Ignore the owner of the gun when line tracing
+	Params.AddIgnoredActor(GetOwner());
 
 	// Call LineTrace function utlizing the line trace setup in Unreal Engine whish as been assigned to GameTraceChannel1
 	// @ ECC_GameTraceChannel1 - Setup by going to Project Settings -> Collision -> Line Trace - Open DefaultEngine file 
 	// under Config folder to identify the assigned channel
-	bool bSuccess = GetWorld()->LineTraceSingleByChannel(HitResult, Location, End, ECollisionChannel::ECC_GameTraceChannel1);
+	bool bSuccess = GetWorld()->LineTraceSingleByChannel(HitResult, Location, End, ECollisionChannel::ECC_GameTraceChannel1, Params);
 
 	// If LineTraceSingleByChannel hits something (now stored in HitResult)
 	if (bSuccess)
