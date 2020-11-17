@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "ShooterCharacter.generated.h"
+#include "MyCharacter.generated.h"
 
 UCLASS()
-class SIMPLESHOOTER_API AShooterCharacter : public ACharacter
+class SIMPLESHOOTER_API AMyCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this character's properties
-	AShooterCharacter();
+	AMyCharacter();
 
 protected:
 	// Called when the game starts or when spawned
@@ -26,20 +26,4 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-private:
-
-	void MoveForward(float AxisValue);
-	void MoveRight(float AxisValue); 
-	void LookUpRate(float AxisValue); 
-	void LookRightRate(float AxisValue);
-
-	UPROPERTY(EditAnywhere)
-	float RotationRateRight = 10.f;
-
-	UPROPERTY(EditAnywhere)
-	float RotationRateLookUp = 10.f; 
-	
-	/**
-	void LookUp(float AxisValue); 
-	*/
 };

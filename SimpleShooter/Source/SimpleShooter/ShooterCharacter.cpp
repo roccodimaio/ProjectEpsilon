@@ -2,9 +2,6 @@
 
 
 #include "ShooterCharacter.h"
-#include "GunBase.h"
-#include "Components/CapsuleComponent.h"
-#include "SimpleShooterGameModeBase.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -18,17 +15,7 @@ AShooterCharacter::AShooterCharacter()
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	Health = MaxHealth;
-
-	Gun = GetWorld()->SpawnActor<AGunBase>(GunClass);
-
-	// Hide bone from mesh (rifle on Wraith character)
-	GetMesh()->HideBoneByName(TEXT("weapon_r"), EPhysBodyOp::PBO_None);
-
-	// Attached Gun to the RightHandWeaponSocket socket on the ShooterCharacter
-	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("RightHandWeaponSocket"));
-	Gun->SetOwner(this); 
+	
 }
 
 // Called every frame
@@ -45,77 +32,38 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AShooterCharacter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis(TEXT("LookUpRate"), this, &AShooterCharacter::LookUpRate);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AShooterCharacter::MoveRight);
 	PlayerInputComponent->BindAxis(TEXT("LookRight"), this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis(TEXT("LookUpRate"), this, &AShooterCharacter::LookUpRate);
 	PlayerInputComponent->BindAxis(TEXT("LookRightRate"), this, &AShooterCharacter::LookRightRate);
-	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ACharacter::Jump); 
-	PlayerInputComponent->BindAction(TEXT("Shoot"), IE_Pressed, this, &AShooterCharacter::Shoot); 
+	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ACharacter::Jump);
 
-}
-
-float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-
-	Health = FMath::Clamp(Health - DamageToApply, 0.f, MaxHealth);
-		
-	UE_LOG(LogTemp, Warning, TEXT("Take Damage; Remaining health at %f!"), Health);
-
-	if (IsDead())
-	{
-		// Remove controller when dead
-		DetachFromControllerPendingDestroy();
-		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		// Store reference to current GameMode
-		ASimpleShooterGameModeBase* GameMode = GetWorld()->GetAuthGameMode<ASimpleShooterGameModeBase>();
-
-		if (GameMode != nullptr)
-		{
-			GameMode->PawnKilled(this);
-		}
-	}
-
-	return DamageToApply;
-}
-
-bool AShooterCharacter::IsDead() const
-{
-	return Health <= 0;
 }
 
 void AShooterCharacter::MoveForward(float AxisValue)
 {
-	// Call built in function AddMovementInput and use the Forward vector to move Forward / Backward
 	AddMovementInput(GetActorForwardVector() * AxisValue); 
 }
 
 void AShooterCharacter::MoveRight(float AxisValue)
 {
-	// Call built in function AddMovementInput and use the Right vector to move Right / Left
-	AddMovementInput(GetActorRightVector() * AxisValue); 
+	AddMovementInput(GetActorRightVector() * AxisValue);
 }
 
 void AShooterCharacter::LookUpRate(float AxisValue)
 {
-	// Identify the direction and distance to rotate per frame
-	AddControllerPitchInput(AxisValue * RotationRateUp * GetWorld()->GetDeltaSeconds());
+	AddControllerPitchInput(AxisValue * RotationRateLookUp * GetWorld()->GetDeltaSeconds());
 }
 
 void AShooterCharacter::LookRightRate(float AxisValue)
 {
-	// Identify the direction and distance to rotate per frame
-	AddControllerYawInput(AxisValue * RotationRateRight * GetWorld()->GetDeltaSeconds());
+	AddControllerYawInput(AxisValue * RotationRateLookUp * GetWorld()->GetDeltaSeconds());
 }
 
-void AShooterCharacter::Shoot()
+/**
+void AShooterCharacter::LookUp(float AxisValue)
 {
-	if (Gun)
-	{
-		Gun->PullTrigger();
-	}
+	AddControllerPitchInput(AxisValue); 
 }
-
-
+*/
 
