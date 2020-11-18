@@ -2,6 +2,7 @@
 
 
 #include "ShooterCharacter.h"
+#include "Gun.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -15,6 +16,22 @@ AShooterCharacter::AShooterCharacter()
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Health = MaxHealth;
+
+	// Hide bone associated with Gun included with the character mesh.  This will hide the gun
+	GetMesh()->HideBoneByName(TEXT("weapon_r"), EPhysBodyOp::PBO_None);
+
+	// Spawn blueprint child Gun.h
+	Gun = GetWorld()->SpawnActor<AGun>(GunClass);
+	
+	// Attach Gun to the specified socket on the character mesh
+	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+	
+	// Set ShooterCharacter as the GunOwner
+	Gun->SetOwner(this); 
+	
+
 	
 }
 
@@ -37,7 +54,26 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis(TEXT("LookUpRate"), this, &AShooterCharacter::LookUpRate);
 	PlayerInputComponent->BindAxis(TEXT("LookRightRate"), this, &AShooterCharacter::LookRightRate);
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction(TEXT("PullTrigger"), IE_Pressed, this, &AShooterCharacter::PullTrigger); 
 
+}
+
+float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	if (Health - DamageToApply <= 0.f)
+	{
+		Health = 0;
+		bIsDead = true; 
+	}
+	else
+	{
+		Health -= DamageToApply; 
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("Health left %f"), Health);
+	return DamageToApply;
 }
 
 void AShooterCharacter::MoveForward(float AxisValue)
@@ -60,10 +96,13 @@ void AShooterCharacter::LookRightRate(float AxisValue)
 	AddControllerYawInput(AxisValue * RotationRateLookUp * GetWorld()->GetDeltaSeconds());
 }
 
-/**
-void AShooterCharacter::LookUp(float AxisValue)
+void AShooterCharacter::PullTrigger()
 {
-	AddControllerPitchInput(AxisValue); 
+	if (Gun)
+	{
+		Gun->PullTrigger(); 
+	}
 }
-*/
+
+
 

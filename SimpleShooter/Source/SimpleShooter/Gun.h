@@ -15,6 +15,9 @@ public:
 	// Sets default values for this actor's properties
 	AGun();
 
+	/*** FUNCTIONS ***/
+	void PullTrigger();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -24,10 +27,29 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	
+	/*** Components***/
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* Root;
 
 	UPROPERTY(VisibleAnywhere)
 	USkeletalMeshComponent* Mesh; 
+
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* MuzzleFlashParticleSystem;
+
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* ImpactParticleSystem;
+
+	/*** VARIABLES ***/
+	FVector ViewPointLocation;
+
+	FRotator ViewPointRotation; 
+
+	UPROPERTY(EditAnywhere)
+	float MaxRange = 1000.f; 
+
+	UPROPERTY(EditAnywhere)
+	float Damage = 10.f; 
 
 };
