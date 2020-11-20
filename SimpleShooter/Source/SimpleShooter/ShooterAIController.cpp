@@ -3,9 +3,37 @@
 
 #include "ShooterAIController.h"
 #include "Kismet/GameplayStatics.h"
+#include "BehaviorTree/BlackboardComponent.h"
 
 AShooterAIController::AShooterAIController()
 {
+
+}
+
+void AShooterAIController::BeginPlay()
+{
+	Super::BeginPlay(); 
+
+	if (AIBehavior != nullptr)
+	{
+		RunBehaviorTree(AIBehavior);
+
+		// Reference to Player0
+		APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+
+		// Reference of Pawn ShooterAIController is in control of
+		APawn* PawnControlled = GetPawn(); 
+
+		// Will check the blackboard for any Keys with the name "PlayerLocation" and key type of Vector
+		// Will set the value of the key with to PlayerPawn->GetActorLocation()
+		GetBlackboardComponent()->SetValueAsVector(TEXT("PlayerLocation"), PlayerPawn->GetActorLocation());
+
+		// Will check the blackboard for any Keys with the name "StartLocation" and key type of Vector
+		// Will set the value of the key with to PawnControlled->GetActorLocation()
+		GetBlackboardComponent()->SetValueAsVector(TEXT("StartLocation"), PawnControlled->GetActorLocation());
+
+
+	}
 
 }
 
@@ -16,23 +44,23 @@ void AShooterAIController::Tick(float DeltaSeconds)
 	// Assign PlayerCharacter to PlayerPawn (refence to player)
 	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 
-	
+	// If Player is in 
 	if (LineOfSightTo(PlayerPawn))
 	{
-		SetFocus(PlayerPawn);
-		MoveToActor(PlayerPawn, MoveToRadius);
+		// Will check the blackboard for any Keys with the name "PlayerLocation" and key type of Vector
+		// Will set the value of the key with to PlayerPawn->GetActorLocation()
+		GetBlackboardComponent()->SetValueAsVector(TEXT("PlayerLocation"), PlayerPawn->GetActorLocation());
+
+		// Will check the blackboard for any Keys with the name "LastKnownPlayerLocation" and key type of Vector
+		// Will set the value of the key with to PlayerPawn->GetActorLocation()
+		GetBlackboardComponent()->SetValueAsVector(TEXT("LastKnownPlayerLocation"), PlayerPawn->GetActorLocation());
 	}
 	else
 	{
-		ClearFocus(EAIFocusPriority::Gameplay);
-		StopMovement();
+		// Clear PlayerLocation
+		GetBlackboardComponent()->ClearValue(TEXT("PlayerLocation"));
 	}
 	
-}
-
-void AShooterAIController::BeginPlay()
-{
-	Super::BeginPlay(); 
 
 }
  

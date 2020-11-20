@@ -26,7 +26,10 @@ protected:
 
 private:
 
+	/** Reference to AIBehaviorTree */
 	UPROPERTY(EditAnywhere)
-	float MoveToRadius = 200.f;
+	class UBehaviorTree* AIBehavior;
+
+
 
 };
