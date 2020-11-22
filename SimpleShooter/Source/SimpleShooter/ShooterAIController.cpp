@@ -41,26 +41,5 @@ void AShooterAIController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	// Assign PlayerCharacter to PlayerPawn (refence to player)
-	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-
-	// If Player is in 
-	if (LineOfSightTo(PlayerPawn))
-	{
-		// Will check the blackboard for any Keys with the name "PlayerLocation" and key type of Vector
-		// Will set the value of the key with to PlayerPawn->GetActorLocation()
-		GetBlackboardComponent()->SetValueAsVector(TEXT("PlayerLocation"), PlayerPawn->GetActorLocation());
-
-		// Will check the blackboard for any Keys with the name "LastKnownPlayerLocation" and key type of Vector
-		// Will set the value of the key with to PlayerPawn->GetActorLocation()
-		GetBlackboardComponent()->SetValueAsVector(TEXT("LastKnownPlayerLocation"), PlayerPawn->GetActorLocation());
-	}
-	else
-	{
-		// Clear PlayerLocation
-		GetBlackboardComponent()->ClearValue(TEXT("PlayerLocation"));
-	}
-	
-
 }
  

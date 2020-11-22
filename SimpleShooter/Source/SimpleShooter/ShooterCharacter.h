@@ -26,11 +26,16 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	/*** FUNCTIONS ***/
 	/** Function to take damage */
-	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override; 
-
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+	
+	/** Function to check if AShooterCharacter is dead */
 	UFUNCTION(BlueprintPure)
 	bool IsDead() const;
+
+	/** Function to shoot equipped Gun.cpp */
+	void PullTrigger();
 
 private:
 
@@ -39,7 +44,7 @@ private:
 	void MoveRight(float AxisValue); 
 	void LookUpRate(float AxisValue); 
 	void LookRightRate(float AxisValue);
-	void PullTrigger();
+	
 
 	/*** VARIABLES ***/
 	UPROPERTY(EditAnywhere)
