@@ -3,6 +3,8 @@
 
 #include "ShooterCharacter.h"
 #include "Gun.h"
+#include "Components/CapsuleComponent.h"
+#include "SimpleShooterGameModeBase.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -65,7 +67,23 @@ float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Dama
 	if (Health - DamageToApply <= 0.f)
 	{
 		Health = 0;
-		bIsDead = true; 
+		bIsDead = true;
+		
+		// Store reference to the SimpleShooterGameModeBase
+		ASimpleShooterGameModeBase* GameMode = GetWorld()->GetAuthGameMode<ASimpleShooterGameModeBase>();
+
+		if (GameMode != nullptr)
+		{
+			// GameMode will handle events after ShooterCharacter is killed (score, subtract lives, track wave numbers, etc.)
+			GameMode->PawnKilled(this);
+		}
+
+		// Remove controller from ShooterCharacter.  Results in no longer being able to attack, mover, etc. 
+		DetachFromControllerPendingDestroy();
+
+		// Turn off capsule collision
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	}
 	else
 	{

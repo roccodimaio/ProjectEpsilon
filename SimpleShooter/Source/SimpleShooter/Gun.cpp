@@ -28,36 +28,17 @@ void AGun::PullTrigger()
 
 	// Spawn particle effect for muzzle flash,  Use SpawnEmitterAttached so particle stays attached to Gun
 	UGameplayStatics::SpawnEmitterAttached(MuzzleFlashParticleSystem, Mesh, TEXT("MuzzleFlashSocket"));
+	
+	FHitResult Hit;
+	FVector ShotDirection;
 
-	// Find owner of Gun
-	APawn* OwnerPawn = Cast<APawn>(GetOwner());
-
-	// If owner is nullptr return
-	if (OwnerPawn == nullptr) return; 
-
-	// Find Controller of owner
-	AController* OwnerController = OwnerPawn->GetController(); 
-
-	// If Controller is nullptr return
-	if (OwnerController == nullptr) return;
-
-	// Call GetplayerViewPoint and store the Viewpoint location and rotation into variables
-	OwnerController->GetPlayerViewPoint(ViewPointLocation, ViewPointRotation);
-
-	// Calculate end point of line trace (distance bullet can travel from the camera)
-	FVector End = ViewPointLocation + ViewPointRotation.Vector() * MaxRange;
-
-	//TODO: LineTrace
-	FHitResult Hit; 
-
-	// LineTrace on custom LineTrace (Bullet = ECC_GameTraceChanel1) and store object hit into OutHit  
-	// If successfully hit something return true
-	bool bSuccess = GetWorld()->LineTraceSingleByChannel(Hit, ViewPointLocation, End, ECollisionChannel::ECC_GameTraceChannel1);
-
+	// Assign values to Hit and ShotDirection by calling the function GunTrace
+	bool bSuccess = GunTrace(Hit, ShotDirection);
+	
 	if (bSuccess)
 	{
 		// Direction of shot
-		FVector ShotDirection = -ViewPointRotation.Vector();
+		ShotDirection = -ViewPointRotation.Vector();
 
 		// Spawn particle system at location bullet impacts an object
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticleSystem, Hit.Location, ShotDirection.Rotation());
@@ -69,14 +50,11 @@ void AGun::PullTrigger()
 			// Create DamageEvent
 			FPointDamageEvent DamageEvent(Damage, Hit, ShotDirection, nullptr);
 
+			AController* OwnerController = GetOwnerController();
+
 			// Call TakeDamage on Actor that was hit
 			ActorHit->TakeDamage(Damage, DamageEvent, OwnerController, this);
 		}
-
-		
-
-
-
 
 		//Draw debut point to show point of bullet impact (location of object hit)
 		//DrawDebugPoint(GetWorld(), OutHit.Location, 20, FColor::Red, true);
@@ -99,5 +77,46 @@ void AGun::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+bool AGun::GunTrace(FHitResult& Hit, FVector& ShotDirection)
+{
+	
+	AController* OwnerController = GetOwnerController();
+
+	if (OwnerController == nullptr) return false; 
+
+	// Call GetplayerViewPoint and store the Viewpoint location and rotation into variables
+	OwnerController->GetPlayerViewPoint(ViewPointLocation, ViewPointRotation);
+
+	// Direction of shot
+	ShotDirection = -ViewPointRotation.Vector();
+
+	// Calculate end point of line trace (distance bullet can travel from the camera)
+	FVector End = ViewPointLocation + ViewPointRotation.Vector() * MaxRange;
+
+	FCollisionQueryParams Params;
+
+	// Ignore the Gun class when line tracing
+	Params.AddIgnoredActor(this);
+
+	// Ignore the Owner of the Gun class when line tracing
+	Params.AddIgnoredActor(GetOwner());
+
+	// LineTrace on custom LineTrace (Bullet = ECC_GameTraceChanel1) and store object hit into OutHit  
+	// If successfully hit something return true
+	return GetWorld()->LineTraceSingleByChannel(Hit, ViewPointLocation, End, ECollisionChannel::ECC_GameTraceChannel1, Params);
+}
+
+AController* AGun::GetOwnerController() const
+{
+	// Find owner of Gun
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+
+	// If owner is nullptr return
+	if (OwnerPawn == nullptr) return nullptr;
+
+	// Controller of owner found
+	return OwnerPawn->GetController();
 }
 
