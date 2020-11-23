@@ -34,6 +34,16 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool IsDead() const;
 
+	/** Function to check if AShooterCharacter is dead */
+	UFUNCTION(BlueprintPure)
+	float GetHealthPercent() const;
+
+	UFUNCTION(BlueprintPure)
+	float GetCurrentHealth() const;
+
+	UFUNCTION(BlueprintPure)
+	float GetMaxHealth() const;
+
 	/** Function to shoot equipped Gun.cpp */
 	void PullTrigger();
 

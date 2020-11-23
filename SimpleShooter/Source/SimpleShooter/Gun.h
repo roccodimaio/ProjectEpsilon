@@ -35,13 +35,20 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	USkeletalMeshComponent* Mesh; 
 
+	/*** VARIABLES ***/
+	
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* MuzzleFlashParticleSystem;
 
 	UPROPERTY(EditAnywhere)
+	USoundBase* MuzzleSound;
+
+	UPROPERTY(EditAnywhere)
 	UParticleSystem* ImpactParticleSystem;
 
-	/*** VARIABLES ***/
+	UPROPERTY(EditAnywhere)
+	USoundBase* ImpactSound;
+
 	FVector ViewPointLocation;
 
 	FRotator ViewPointRotation; 

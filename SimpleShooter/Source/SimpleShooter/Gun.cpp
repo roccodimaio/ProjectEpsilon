@@ -28,6 +28,9 @@ void AGun::PullTrigger()
 
 	// Spawn particle effect for muzzle flash,  Use SpawnEmitterAttached so particle stays attached to Gun
 	UGameplayStatics::SpawnEmitterAttached(MuzzleFlashParticleSystem, Mesh, TEXT("MuzzleFlashSocket"));
+
+	// Play sound at location of the Gun
+	UGameplayStatics::SpawnSoundAttached(MuzzleSound, Mesh, TEXT("MuzzleFlashSocket"));
 	
 	FHitResult Hit;
 	FVector ShotDirection;
@@ -42,6 +45,8 @@ void AGun::PullTrigger()
 
 		// Spawn particle system at location bullet impacts an object
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticleSystem, Hit.Location, ShotDirection.Rotation());
+
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, Hit.Location);
 
 		AActor* ActorHit = Hit.GetActor();
 

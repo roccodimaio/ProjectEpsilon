@@ -10,10 +10,28 @@ ASimpleShooterPlayerController::ASimpleShooterPlayerController()
 
 }
 
+void ASimpleShooterPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// Create LoseScreen widget
+	HUD = CreateWidget(this, HUDClass);
+
+	if (HUD != nullptr)
+	{
+		// Display LoseScreen widget
+		HUD->AddToViewport();
+	}
+
+}
+
 void ASimpleShooterPlayerController::GameHasEnded(AActor* EndGameFocus, bool bIsWinner)
 {
 	Super::GameHasEnded(EndGameFocus, bIsWinner);
 	UE_LOG(LogTemp, Warning, TEXT("ASimpleShooterPlayerController -> GameHasEnded"));
+	
+	// Remove HUD from Viewport once game is over (dead or win)
+	HUD->RemoveFromViewport();
 
 	if (bIsWinner)
 	{

@@ -28,7 +28,8 @@ void UBTService_PlayerLocationIfSeen::TickNode(UBehaviorTreeComponent& OwnerComp
 	{
 		UE_LOG(LogTemp, Warning, TEXT("BTService_PlayerLocationIfSeen->LineOfSite TRUE"));
 		// Set value of the blackboard key associated with this BTService. Blackboard key selected in Bluprint
-		OwnerComp.GetBlackboardComponent()->SetValueAsVector(GetSelectedBlackboardKey(), PlayerPawn->GetActorLocation());
+		OwnerComp.GetBlackboardComponent()->SetValueAsObject(GetSelectedBlackboardKey(), PlayerPawn);
+		
 	}
 	else
 	{
