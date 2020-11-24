@@ -10,14 +10,14 @@ void AKillEmAllGameMode::PawnKilled(APawn* PawnKilled)
 {
 	Super::PawnKilled(PawnKilled);
 
-	UE_LOG(LogTemp, Warning, TEXT("AKillEmAllGameMode -> PawnKilled"));
+	//UE_LOG(LogTemp, Warning, TEXT("AKillEmAllGameMode -> PawnKilled"));
 
 	// If a Player was killed then PlayerController will not be nullptr;
 	APlayerController* PlayerController = Cast<APlayerController>(PawnKilled->GetController());
 
 	if (PlayerController != nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AKillEmAllGameMode -> PawnKilled -> PLAYER KILLED"));
+		//UE_LOG(LogTemp, Warning, TEXT("AKillEmAllGameMode -> PawnKilled -> PLAYER KILLED"));
 		EndGame(false);
 	}
 

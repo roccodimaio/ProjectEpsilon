@@ -22,6 +22,20 @@ AGun::AGun()
 
 }
 
+// Called when the game starts or when spawned
+void AGun::BeginPlay()
+{
+	Super::BeginPlay();
+
+}
+
+// Called every frame
+void AGun::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
 void AGun::PullTrigger()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Gun->PullTrigger"));
@@ -67,20 +81,6 @@ void AGun::PullTrigger()
 
 	// Draw debug view port
 	//DrawDebugCamera(GetWorld(), ViewPointLocation, ViewPointRotation, 90.0f, 2, FColor::Red, true);
-
-}
-
-// Called when the game starts or when spawned
-void AGun::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
-void AGun::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 
 }
 
