@@ -29,6 +29,8 @@ void AMeleeCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	Health = MaxHealth;
+
 	RightHandCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	LeftHandCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
@@ -62,11 +64,11 @@ float AMeleeCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damage
 
 		if (GameMode != nullptr)
 		{
-			// GameMode will handle events after ShooterCharacter is killed (score, subtract lives, track wave numbers, etc.)
+			// GameMode will handle events after MeleeCharacter is killed (score, subtract lives, track wave numbers, etc.)
 			GameMode->PawnKilled(this);
 		}
 
-		// Remove controller from ShooterCharacter.  Results in no longer being able to attack, mover, etc. 
+		// Remove controller from MeleeCharacter.  Results in no longer being able to attack, move, etc. 
 		DetachFromControllerPendingDestroy();
 
 		// Turn off capsule collision

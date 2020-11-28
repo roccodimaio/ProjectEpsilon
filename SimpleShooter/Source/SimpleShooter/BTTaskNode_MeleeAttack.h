@@ -4,23 +4,24 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "BTTask_Shoot.generated.h"
+#include "BTTaskNode_MeleeAttack.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SIMPLESHOOTER_API UBTTask_Shoot : public UBTTaskNode
+class SIMPLESHOOTER_API UBTTaskNode_MeleeAttack : public UBTTaskNode
 {
 	GENERATED_BODY()
 
 public:
 
-	UBTTask_Shoot();
+	UBTTaskNode_MeleeAttack();
 
-	class AShooterAICharacter* OwnerPawn = nullptr; 
+	class AMeleeAICharacter* OwnerPawn = nullptr; 
 
 protected:
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+	
 };

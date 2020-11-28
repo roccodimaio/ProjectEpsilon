@@ -4,32 +4,37 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "ShooterAIController.generated.h"
+#include "MeleeAIController.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SIMPLESHOOTER_API AShooterAIController : public AAIController
+class SIMPLESHOOTER_API AMeleeAIController : public AAIController
 {
 	GENERATED_BODY()
-	
+
 public:
-	AShooterAIController();
+
+	AMeleeAIController();
 
 	virtual void Tick(float DeltaSeconds) override;
 
 	/*** COMPONENTS ***/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UAIPerceptionComponent* AIPerceptionComponent;
-	
+
 	/*** FUNCTIONS ***/
 	bool IsDead() const;
+
+	UFUNCTION()
+	void ProcessPerceivedInformation(const TArray<AActor*>& UpdatedActors);
 
 protected:
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
 
 private:
 
@@ -38,7 +43,7 @@ private:
 	class UAISenseConfig_Sight* SightConfig;
 
 	UPROPERTY(EditAnywhere)
-	class UAISenseConfig_Hearing* HearingConfig; 
+	class UAISenseConfig_Hearing* HearingConfig;
 
 	/** Reference to AIBehaviorTree */
 	UPROPERTY(EditAnywhere)

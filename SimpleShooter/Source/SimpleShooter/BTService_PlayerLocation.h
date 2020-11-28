@@ -14,6 +14,8 @@ class SIMPLESHOOTER_API UBTService_PlayerLocation : public UBTService_Blackboard
 {
 	GENERATED_BODY()
 
+public:
+
 	UBTService_PlayerLocation();
 
 protected:

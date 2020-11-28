@@ -1,32 +1,34 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "BTTask_Shoot.h"
+#include "BTTaskNode_MeleeAttack.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "ShooterAICharacter.h"
 #include "AIController.h"
+#include "MeleeAICharacter.h"
 
 
-UBTTask_Shoot::UBTTask_Shoot()
+UBTTaskNode_MeleeAttack::UBTTaskNode_MeleeAttack()
 {
 	// Set name of BTTask
-	NodeName = TEXT("Shoot");
+	NodeName = TEXT("MeleeAttack");
+
 }
 
-EBTNodeResult::Type UBTTask_Shoot::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+EBTNodeResult::Type UBTTaskNode_MeleeAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	Super::ExecuteTask(OwnerComp, NodeMemory);
 
 	if (OwnerComp.GetAIOwner() == nullptr) return EBTNodeResult::Failed;
 
 	// Get reference to AIController assocated with this Blackboard task, then get the Owning Pawn
-	// Cast Owning Pawn to AShooterCharacter
-	OwnerPawn = Cast<AShooterAICharacter>(OwnerComp.GetAIOwner()->GetPawn());
-	
+	// Cast Owning Pawn to AMeleeAICharacter
+	OwnerPawn = Cast<AMeleeAICharacter>(OwnerComp.GetAIOwner()->GetPawn());
+
 	// Call function within OwnerPawn
 	if (OwnerPawn)
 	{
-		OwnerPawn->PullTrigger();
+		// TODO Call AttackMontage
+
 		return EBTNodeResult::Succeeded;
 	}
 	else
@@ -34,5 +36,3 @@ EBTNodeResult::Type UBTTask_Shoot::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 		return EBTNodeResult::Failed;
 	}
 }
-	
-

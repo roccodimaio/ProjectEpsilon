@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "ShooterCharacter.h"
+#include "BaseAICharacter.h"
 
 // Sets default values
 AGun::AGun()
