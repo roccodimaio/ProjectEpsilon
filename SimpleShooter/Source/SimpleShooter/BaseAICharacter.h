@@ -47,6 +47,15 @@ public:
 	UFUNCTION(BlueprintPure)
 	float GetMaxHealth() const;
 
+	/** Function to call when AttackRangeShereComponent is overlapped */
+	UFUNCTION()
+	virtual void OnOverlapBeginAttackSphere(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	/** Function for when AttackRangeSphereComonent ends overlap */
+	UFUNCTION()
+	virtual void OnOverlapEndAttackSphere(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+
 	/*** VARIABLES ***/
 	
 	UPROPERTY(VisibleAnywhere)
@@ -69,4 +78,14 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	float Damage = 10.f;
+
+	UPROPERTY(VisibleAnywhere)
+	bool bIsWithinAttackRange;
+
+	UPROPERTY(EditAnywhere)
+	float AttackRange = 50.f;
+
+	/*** COMPONENTS ***/
+	UPROPERTY(EditAnywhere)
+	class USphereComponent* AttackRangeSphereComponent;
 };

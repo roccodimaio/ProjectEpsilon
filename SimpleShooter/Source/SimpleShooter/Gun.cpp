@@ -4,6 +4,7 @@
 #include "Gun.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/SceneComponent.h"
+#include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "ShooterCharacter.h"
@@ -74,6 +75,7 @@ void AGun::PullTrigger()
 
 			// Call TakeDamage on Actor that was hit
 			ActorHit->TakeDamage(Damage, DamageEvent, OwnerController, this);
+
 		}
 
 		//Draw debut point to show point of bullet impact (location of object hit)
@@ -88,6 +90,10 @@ void AGun::PullTrigger()
 bool AGun::GunTrace(FHitResult& Hit, FVector& ShotDirection)
 {
 	
+	AActor* HitActor = Hit.GetActor();
+
+	ABaseAICharacter* BaseAICharacter = Cast<ABaseAICharacter>(HitActor);
+
 	AController* OwnerController = GetOwnerController();
 
 	if (OwnerController == nullptr) return false; 
@@ -102,12 +108,22 @@ bool AGun::GunTrace(FHitResult& Hit, FVector& ShotDirection)
 	FVector End = ViewPointLocation + ViewPointRotation.Vector() * MaxRange;
 
 	FCollisionQueryParams Params;
-
+	
 	// Ignore the Gun class when line tracing
 	Params.AddIgnoredActor(this);
 
 	// Ignore the Owner of the Gun class when line tracing
 	Params.AddIgnoredActor(GetOwner());
+
+
+	if (BaseAICharacter)
+	{
+		USphereComponent* SphereComponent;
+
+		SphereComponent = BaseAICharacter->AttackRangeSphereComponent;
+
+		Params.AddIgnoredComponent(SphereComponent);
+	}
 
 	// LineTrace on custom LineTrace (Bullet = ECC_GameTraceChanel1) and store object hit into OutHit  
 	// If successfully hit something return true

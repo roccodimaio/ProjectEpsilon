@@ -5,17 +5,22 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "ShooterCharacter.h"
 #include "SimpleShooterGameModeBase.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "BaseAIController.h"
 
 // Sets default values
 ABaseAICharacter::ABaseAICharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	AttackRangeSphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("Attack Range Sphere Component"));
+	AttackRangeSphereComponent->SetupAttachment(GetRootComponent()); 
 
 }
 
@@ -25,7 +30,12 @@ void ABaseAICharacter::BeginPlay()
 	Super::BeginPlay();
 
 	Health = MaxHealth;
-	
+
+	AttackRangeSphereComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	AttackRangeSphereComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
+	AttackRangeSphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ABaseAICharacter::OnOverlapBeginAttackSphere);
+	AttackRangeSphereComponent->OnComponentEndOverlap.AddDynamic(this, &ABaseAICharacter::OnOverlapEndAttackSphere);
+
 }
 
 // Called every frame
@@ -67,10 +77,10 @@ float ABaseAICharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 		
 		// Remove controller from Character.  Results in no longer being able to attack, move, etc. 
 		DetachFromControllerPendingDestroy(); 
-
+		
 		// Turn off capsule collision
-		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision); // NOT CURRENTLY WORKING
-
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		AttackRangeSphereComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision); 
 	}
 	else
 	{
@@ -98,5 +108,34 @@ float ABaseAICharacter::GetCurrentHealth() const
 float ABaseAICharacter::GetMaxHealth() const
 {
 	return MaxHealth;
+}
+
+void ABaseAICharacter::OnOverlapBeginAttackSphere(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	bIsWithinAttackRange = true; 
+	
+	// TODO Function to return AIController
+	AController* AIController = GetController();
+	ABaseAIController* BaseAIController = Cast<ABaseAIController>(AIController); 
+
+	if (BaseAIController)
+	{
+		BaseAIController->SetIsWithinAttackRange(bIsWithinAttackRange);
+	}
+
+}
+
+void ABaseAICharacter::OnOverlapEndAttackSphere(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	bIsWithinAttackRange = false; 
+
+	// TODO Function to return AIController
+	AController* AIController = GetController();
+	ABaseAIController* BaseAIController = Cast<ABaseAIController>(AIController);
+
+	if (BaseAIController)
+	{
+		BaseAIController->SetIsWithinAttackRange(bIsWithinAttackRange);
+	}
 }
 

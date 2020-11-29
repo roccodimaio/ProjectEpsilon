@@ -30,7 +30,7 @@ void ABaseAIController::BeginPlay()
 	
 	//AIPerceptionComponent->OnPerceptionUpdated.AddDynamic(this, &ABaseAIController::ProcessPerceivedInformation);
 	
-	AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ABaseAIController::ProcessPerceivedInformation);
+	//AIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &ABaseAIController::ProcessPerceivedInformation);
 
 	// Reference to pawn that BaseAIController is in control of
 	APawn* PawnControlled = GetPawn();
@@ -66,9 +66,14 @@ APawn* ABaseAIController::GetEnemyPawn()
 	return EnemyPawn;
 }
 
+void ABaseAIController::SetIsWithinAttackRange(bool Value)
+{
+	GetBlackboardComponent()->SetValueAsBool(TEXT("IsWithinAttackRange"), Value); 
+}
+
+/*
 void ABaseAIController::ProcessPerceivedInformation(AActor* Actor, FAIStimulus Stimulus)
 {
-	/**
 	UE_LOG(LogTemp, Warning, TEXT("BaseAIController->ProcessPerceivedInformation"));
 
 	auto TempPerceptionComponent = GetPerceptionComponent();
@@ -101,8 +106,9 @@ void ABaseAIController::ProcessPerceivedInformation(AActor* Actor, FAIStimulus S
 
 	//AIPerceptionComponent->GetActorsPerception(UpdatedActors[i], FActorPerceptionBlueprintInfo::LastSensedStimuli);
 
-	*/
+	
 }
+*/
 
 bool ABaseAIController::IsDead() const
 {

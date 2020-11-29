@@ -24,8 +24,13 @@ protected:
 
 public:
 
+	/*** FUNCTIONS ***/
 	/** Function to shoot equipped Gun.cpp */
 	void PullTrigger();
+
+	/** Function to take damage */
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
 
 private:
 

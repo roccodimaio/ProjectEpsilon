@@ -3,6 +3,7 @@
 
 #include "ShooterAICharacter.h"
 #include "Gun.h"
+#include "Components/BoxComponent.h"
 
 AShooterAICharacter::AShooterAICharacter()
 {
@@ -32,4 +33,15 @@ void AShooterAICharacter::PullTrigger()
 	{
 		Gun->PullTrigger();
 	}
+}
+
+float AShooterAICharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	if (bIsDead == true)
+	{
+		GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	return DamageToApply;
 }

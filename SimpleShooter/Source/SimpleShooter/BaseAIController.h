@@ -25,7 +25,10 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	UFUNCTION()
-	void ProcessPerceivedInformation(AActor* Actor, FAIStimulus Stimulus);
+	void SetIsWithinAttackRange(bool Value);
+
+	//UFUNCTION()
+	//void ProcessPerceivedInformation(AActor* Actor, FAIStimulus Stimulus);
 
 	bool IsDead() const;
 
@@ -55,5 +58,5 @@ private:
 	/*** FUNCTIONS ***/
 	UFUNCTION(BlueprintPure)
 	APawn* GetEnemyPawn();
-	
+
 };
