@@ -4,24 +4,25 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/Tasks/BTTask_BlackboardBase.h"
-#include "BTTask_FindRandomLocation.generated.h"
+#include "BTTask_FindWanderLocation.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class SIMPLESHOOTER_API UBTTask_FindRandomLocation : public UBTTask_BlackboardBase
+class SIMPLESHOOTER_API UBTTask_FindWanderLocation : public UBTTask_BlackboardBase
 {
 	GENERATED_BODY()
 
 public:
-	UBTTask_FindRandomLocation();
+
+	UBTTask_FindWanderLocation();
 
 	class ABaseAICharacter* OwnerPawn = nullptr;
 
 	/*** VARIABLES ***/
 	UPROPERTY(EditAnywhere)
-	float SearchRadius = 500.f;
+	float SearchRadius = 200.f;
 
 protected:
 
@@ -32,5 +33,5 @@ private:
 	/*** VARIABLES ***/
 	FVector OriginVector;
 	FVector RandomLocationVector;
-	
+
 };
