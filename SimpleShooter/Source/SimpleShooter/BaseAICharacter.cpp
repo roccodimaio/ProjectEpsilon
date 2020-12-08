@@ -12,6 +12,8 @@
 #include "SimpleShooterGameModeBase.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "BaseAIController.h"
+#include "Animation/AnimInstance.h"
+#include "Math/UnrealMathUtility.h"
 
 // Sets default values
 ABaseAICharacter::ABaseAICharacter()
@@ -122,7 +124,6 @@ void ABaseAICharacter::OnOverlapBeginAttackSphere(UPrimitiveComponent* Overlappe
 	{
 		BaseAIController->SetIsWithinAttackRange(bIsWithinAttackRange);
 	}
-
 }
 
 void ABaseAICharacter::OnOverlapEndAttackSphere(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -136,6 +137,33 @@ void ABaseAICharacter::OnOverlapEndAttackSphere(UPrimitiveComponent* OverlappedC
 	if (BaseAIController)
 	{
 		BaseAIController->SetIsWithinAttackRange(bIsWithinAttackRange);
+	}
+}
+
+void ABaseAICharacter::Attack()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance(); 
+
+	if (AttackMontage && AnimInstance)
+	{
+		float MontageDuration = AnimInstance->Montage_Play(AttackMontage, 1.f);
+
+		if (MontageDuration > 0.f)
+		{
+			int32 Attack = FMath::RandRange(1, NumberOfAttacks);
+			
+			FString AttackName = FString(TEXT("Attack_"));
+
+			FString AttackSuffex = FString::FromInt(Attack);
+
+			UE_LOG(LogTemp, Warning, TEXT("Attack # from RandRange %s"), *AttackSuffex);
+
+			AttackName.Append(AttackSuffex);
+
+			FName ConverteredAttackName(AttackName);
+
+			AnimInstance->Montage_JumpToSection(ConverteredAttackName, AttackMontage);
+		}
 	}
 }
 

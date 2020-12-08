@@ -27,9 +27,6 @@ public:
 
 	/*** FUNCTIONS ***/
 
-	/** Function to Attack */
-	void AttackRight();
-
 	/** Function to enable collision on Right hand */
 	UFUNCTION(BlueprintCallable)
 	void EnableRightHandCollision();

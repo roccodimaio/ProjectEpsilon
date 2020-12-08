@@ -55,6 +55,8 @@ public:
 	UFUNCTION()
 	virtual void OnOverlapEndAttackSphere(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
+	UFUNCTION()
+	virtual void Attack(); 
 
 	/*** VARIABLES ***/
 	
@@ -84,6 +86,12 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	float AttackRange = 50.f;
+
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* AttackMontage;
+
+	UPROPERTY(EditDefaultsOnly)
+	int32 NumberOfAttacks; 
 
 	/*** COMPONENTS ***/
 	UPROPERTY(EditAnywhere)

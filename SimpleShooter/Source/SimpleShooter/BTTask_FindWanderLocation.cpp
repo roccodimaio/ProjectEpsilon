@@ -15,9 +15,7 @@ UBTTask_FindWanderLocation::UBTTask_FindWanderLocation()
 
 EBTNodeResult::Type UBTTask_FindWanderLocation::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	
 	Super::ExecuteTask(OwnerComp, NodeMemory);
-
 	if (OwnerComp.GetAIOwner() == nullptr) return EBTNodeResult::Failed;
 
 	if (GetWorld())
@@ -36,8 +34,6 @@ EBTNodeResult::Type UBTTask_FindWanderLocation::ExecuteTask(UBehaviorTreeCompone
 
 			// Find random point within SearchRadius from current position of owning actor
 			RandomLocationVector = NavigationArea->GetRandomReachablePointInRadius(this, OriginVector, SearchRadius);
-
-			//UE_LOG(LogTemp, Warning, TEXT("FindWanderLocation->RandomLocationVector is %s"), *RandomLocationVector.ToString());
 
 			// Set value of the blackboard key associated with this BTService. Blackboard key selected in Bluprint
 			OwnerComp.GetBlackboardComponent()->SetValueAsVector(GetSelectedBlackboardKey(), RandomLocationVector);

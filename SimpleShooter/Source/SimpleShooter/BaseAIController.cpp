@@ -12,12 +12,15 @@
 #include "Perception/AISenseConfig_Hearing.h"
 
 
+
 ABaseAIController::ABaseAIController()
 {
 	AIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AI Perception Component"));
 	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
 
 	AIPerceptionComponent->ConfigureSense(*SightConfig);
+
+	AttackingState = EAttackingState::EAS_Holding;
 
 	// Set sight as the dominant sense
 	//GetPerceptionComponent()->SetDominantSense(*SightConfig->GetSenseImplementation());
@@ -34,6 +37,9 @@ void ABaseAIController::BeginPlay()
 
 	// Reference to pawn that BaseAIController is in control of
 	APawn* PawnControlled = GetPawn();
+
+	OwnerCharacter = Cast<ABaseAICharacter>(GetPawn());
+
 
 	if (AIBehavior != nullptr)
 	{
@@ -53,6 +59,8 @@ void ABaseAIController::BeginPlay()
 		// Will check the blackboard for any Keys with the name "StartLocation" and key type of Vector
 		// Will set the value of the key with to PawnControlled->GetActorLocation()
 		GetBlackboardComponent()->SetValueAsVector(TEXT("StartLocation"), PawnControlled->GetActorLocation());
+
+		GetBlackboardComponent()->SetValueAsEnum(TEXT("AIState"), 0);
 	}
 }
 
@@ -64,6 +72,23 @@ void ABaseAIController::Tick(float DeltaSeconds)
 APawn* ABaseAIController::GetEnemyPawn()
 {
 	return EnemyPawn;
+}
+
+void ABaseAIController::SetAIStateToAttacking()
+{
+	GetBlackboardComponent()->SetValueAsEnum(TEXT("AIState"), 1);
+}
+
+void ABaseAIController::Attack()
+{
+	UE_LOG(LogTemp, Warning, TEXT("ABaseIAController::Attack()"));
+	//UE_LOG(LogTemp, Warning, TEXT("OwnerCharacter Name %s"), *OwnerCharacter->GetName());
+
+	if (OwnerCharacter != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ABaseIAController::Attack()->IF"));
+		OwnerCharacter->Attack(); 
+	}
 }
 
 void ABaseAIController::SetIsWithinAttackRange(bool Value)

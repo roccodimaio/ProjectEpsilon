@@ -9,6 +9,8 @@
 #include "ShooterCharacter.h"
 #include "SimpleShooterGameModeBase.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Animation/AnimMontage.h"
+#include "Animation/AnimInstance.h"
 
 AMeleeAICharacter::AMeleeAICharacter()
 {
@@ -33,10 +35,6 @@ void AMeleeAICharacter::BeginPlay()
 	RightHandCollision->OnComponentEndOverlap.AddDynamic(this, &AMeleeAICharacter::OnOverlapEndRightHand);
 }
 
-void AMeleeAICharacter::AttackRight()
-{
-	UE_LOG(LogTemp, Warning, TEXT("MeleeAICharacter->AttackRight")); 
-}
 
 void AMeleeAICharacter::EnableRightHandCollision()
 {

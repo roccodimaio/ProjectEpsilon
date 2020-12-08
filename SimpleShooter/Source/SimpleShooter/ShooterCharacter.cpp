@@ -19,6 +19,7 @@ void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+
 	Health = MaxHealth;
 
 	// Hide bone associated with Gun included with the character mesh.  This will hide the gun
