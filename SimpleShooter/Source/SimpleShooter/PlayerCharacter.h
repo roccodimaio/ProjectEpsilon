@@ -18,6 +18,13 @@ enum class EPlayerStance : uint8
 	EPS_MAX UMETA(DisplayName = "DefaultMax")
 };
 
+enum class EWeaponEquipedStatus : uint8
+{
+	EWES_Unarmed UMETA(DisplayName = "Unarmed"),
+	EWES_MainEquipped UMETA(DisplayName = "MainEquipped"),
+	EWES_SecondaryEquipped UMETA(DisplayName = "SecondaryEquipped"),
+	EWES_MAX UMETA(DisplayName = "DefaultMax")
+};
 UCLASS()
 class SIMPLESHOOTER_API APlayerCharacter : public ACharacter
 {
@@ -45,6 +52,8 @@ public:
 	void SetPlayerStance(EPlayerStance Stance);
 	EPlayerStance GetPlayerStance();
 
+	void SetWeaponEquippedStatus(EWeaponEquipedStatus Status);
+	EWeaponEquipedStatus GetWeaponEquippedStatus();
 	
 	/** Function to take damage */
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
@@ -94,7 +103,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	ABaseWeapon* SecondaryWeapon = nullptr;
 		
-	EPlayerStance PlayerStance;
+	EPlayerStance PlayerStance = EPlayerStance::EPS_Unarmed;
+
+	EWeaponEquipedStatus WeaponEquippedStatus = EWeaponEquipedStatus::EWES_Unarmed; 
 
 	FName MainSocketName;
 

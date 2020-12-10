@@ -29,10 +29,13 @@ void APlayerCharacter::BeginPlay()
 	MainWeapon = GetWorld()->SpawnActor<ABaseWeapon>(MainWeaponClass);
 
 	// Attach MainWeapon to the appropriate Socket
-	MainWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, MainSocketName);
+	MainWeapon->UnequipWeapon(this);
 
 	// Spawn Secondary Weapon
+	SecondaryWeapon = GetWorld()->SpawnActor<ABaseWeapon>(SecondaryWeaponClass);
 
+	// Attach SecondaryWeapon to the appropriate Socket
+	SecondaryWeapon->UnequipWeapon(this);
 
 
 	// Spawn blueprint of Gun.h
@@ -70,6 +73,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis(TEXT("LookUpRate"), this, &APlayerCharacter::LookUpRate);
 	PlayerInputComponent->BindAxis(TEXT("LookRightRate"), this, &APlayerCharacter::LookRightRate);
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction(TEXT("SwapWeapon"), IE_Pressed, this, &APlayerCharacter::SwapWeapon);
 
 }
 
@@ -151,23 +155,23 @@ void APlayerCharacter::LookRightRate(float AxisValue)
 
 void APlayerCharacter::SwapWeapon()
 {
-	switch (PlayerStance)
+	switch (WeaponEquippedStatus)
 	{
-	case EPlayerStance::EPS_Unarmed:
-		if (MainWeapon != nullptr)
-		{
-			// MainWeapon Equip
-			// Attach MainWeapon to the appropriate Socket
-			MainWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "RightHandSocket");
-		}
+	case EWeaponEquipedStatus::EWES_Unarmed:
+		MainWeapon->EquipWeapon(this);
+		SetWeaponEquippedStatus(EWeaponEquipedStatus::EWES_MainEquipped);
 		break;
-	case EPlayerStance::EPS_Katana:
+	case EWeaponEquipedStatus::EWES_MainEquipped:
+		MainWeapon->UnequipWeapon(this);
+		SecondaryWeapon->EquipWeapon(this); 
+		SetWeaponEquippedStatus(EWeaponEquipedStatus::EWES_SecondaryEquipped);
 		break;
-	case EPlayerStance::EPS_Rifle:
+	case EWeaponEquipedStatus::EWES_SecondaryEquipped:
+		SecondaryWeapon->UnequipWeapon(this);
+		SetWeaponEquippedStatus(EWeaponEquipedStatus::EWES_Unarmed);
+		SetPlayerStance(EPlayerStance::EPS_Unarmed);
 		break;
-	case EPlayerStance::EPS_Pistol:
-		break;
-	case EPlayerStance::EPS_MAX:
+	case EWeaponEquipedStatus::EWES_MAX:
 		break;
 	default:
 		break;
@@ -182,5 +186,15 @@ void APlayerCharacter::SetPlayerStance(EPlayerStance Stance)
 EPlayerStance APlayerCharacter::GetPlayerStance()
 {
 	return PlayerStance;
+}
+
+void APlayerCharacter::SetWeaponEquippedStatus(EWeaponEquipedStatus Status)
+{
+	WeaponEquippedStatus = Status; 
+}
+
+EWeaponEquipedStatus APlayerCharacter::GetWeaponEquippedStatus()
+{
+	return WeaponEquippedStatus;
 }
 

@@ -24,6 +24,10 @@ public:
 	// Sets default values for this actor's properties
 	ABaseWeapon();
 
+	/*** COMPONENTS ***/
+	UPROPERTY(VisibleAnywhere)
+	USkeletalMeshComponent* Mesh;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -38,6 +42,10 @@ public:
 	/*** VARIABLES ***/
 	UPROPERTY(EditDefaultsOnly)
 	EWeaponType WeaponType = EWeaponType::EPS_MAX;
+
+	UPROPERTY(EditAnywhere)
+	float Damage = 10.f;
+
 	
 	/*** FUNCTIONS ***/
 	UFUNCTION()
@@ -48,20 +56,16 @@ public:
 
 	void EquipWeapon(ACharacter* Character);
 
+	void UnequipWeapon(ACharacter* Character);
+
+	void SwapWeapon(ACharacter* Character);
+
 	
 
 private:
 
-	/*** Components***/
+	/*** COMPONENTS ***/
 	UPROPERTY(VisibleAnywhere)
-	USceneComponent* Root;
-
-	UPROPERTY(VisibleAnywhere)
-	USkeletalMeshComponent* Mesh;
-
-	/*** VARIABLES ***/
-	UPROPERTY(EditAnywhere)
-	float Damage = 10.f;
-
-	
+	class USceneComponent* Root;
+		
 };

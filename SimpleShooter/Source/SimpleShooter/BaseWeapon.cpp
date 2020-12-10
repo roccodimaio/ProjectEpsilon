@@ -3,12 +3,19 @@
 
 #include "BaseWeapon.h"
 #include "PlayerCharacter.h"
+#include "Components/SceneComponent.h"
 
 // Sets default values
 ABaseWeapon::ABaseWeapon()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	SetRootComponent(Root); 
+
+	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh"));
+	Mesh->SetupAttachment(GetRootComponent()); 
 
 }
 
@@ -42,6 +49,8 @@ void ABaseWeapon::EquipWeapon(ACharacter* Character)
 
 	if (PlayerCharacter != nullptr)
 	{
+		AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "RightHandSocket");
+		
 		switch (WeaponType)
 		{
 		case EWeaponType::EPS_Katana:
@@ -57,5 +66,32 @@ void ABaseWeapon::EquipWeapon(ACharacter* Character)
 			break;
 		}
 	}
+}
+
+void ABaseWeapon::UnequipWeapon(ACharacter* Character)
+{
+	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(Character);
+
+	if (PlayerCharacter != nullptr)
+	{
+		switch (WeaponType)
+		{
+		case EWeaponType::EPS_Katana:
+			AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "SwordSocket");
+			break;
+		case EWeaponType::EPS_Rifle:
+			AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "RifleSocket");
+			break;
+		case EWeaponType::EPS_Pistol:
+			AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "PistolSocket");
+			break;
+		case EWeaponType::EPS_MAX:
+			break;
+		}
+	}
+}
+
+void ABaseWeapon::SwapWeapon(ACharacter* Character)
+{
 }
 
