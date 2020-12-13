@@ -7,6 +7,9 @@
 #include "Gun.h"
 #include "BaseMeleeWeapon.h"
 #include "BaseWeapon.h"
+#include "BaseWeapon_Gun.h"
+#include "Blueprint/UserWidget.h"
+#include "SimpleShooterPlayerController.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -74,6 +77,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis(TEXT("LookRightRate"), this, &APlayerCharacter::LookRightRate);
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction(TEXT("SwapWeapon"), IE_Pressed, this, &APlayerCharacter::SwapWeapon);
+	PlayerInputComponent->BindAction(TEXT("PullTrigger"), IE_Pressed, this, &APlayerCharacter::PullTrigger);
 
 }
 
@@ -131,6 +135,16 @@ float APlayerCharacter::GetMaxHealth() const
 	return MaxHealth;
 }
 
+void APlayerCharacter::PullTrigger()
+{
+	ABaseWeapon_Gun* GunWeapon = Cast<ABaseWeapon_Gun>(ActiveWeapon); 
+
+	if (GunWeapon != nullptr)
+	{
+		GunWeapon->PullTrigger(); 
+	}
+}
+
 void APlayerCharacter::MoveForward(float AxisValue)
 {
 	AddMovementInput(GetActorForwardVector() * AxisValue);
@@ -160,23 +174,43 @@ void APlayerCharacter::SwapWeapon()
 	case EWeaponEquipedStatus::EWES_Unarmed:
 		MainWeapon->EquipWeapon(this);
 		SetWeaponEquippedStatus(EWeaponEquipedStatus::EWES_MainEquipped);
+		ActiveWeapon = MainWeapon;
+		ActiveWeapon->SetOwner(this);
 		break;
 	case EWeaponEquipedStatus::EWES_MainEquipped:
 		MainWeapon->UnequipWeapon(this);
 		SecondaryWeapon->EquipWeapon(this); 
 		SetWeaponEquippedStatus(EWeaponEquipedStatus::EWES_SecondaryEquipped);
+		ActiveWeapon = SecondaryWeapon;
+		ActiveWeapon->SetOwner(this);
 		break;
 	case EWeaponEquipedStatus::EWES_SecondaryEquipped:
 		SecondaryWeapon->UnequipWeapon(this);
 		SetWeaponEquippedStatus(EWeaponEquipedStatus::EWES_Unarmed);
 		SetPlayerStance(EPlayerStance::EPS_Unarmed);
+		ActiveWeapon = nullptr;
+		//ActiveWeapon->SetOwner(nullptr); 
 		break;
 	case EWeaponEquipedStatus::EWES_MAX:
 		break;
 	default:
 		break;
 	}
+
+	AController* OwnerController = GetController();
+
+	if (OwnerController != nullptr)
+	{
+		ASimpleShooterPlayerController* PlayerController = Cast<ASimpleShooterPlayerController>(OwnerController);
+
+		if (PlayerController)
+		{
+			PlayerController->DisplayWeaponHUD(ActiveWeapon);
+		}
+	}
+
 }
+
 
 void APlayerCharacter::SetPlayerStance(EPlayerStance Stance)
 {

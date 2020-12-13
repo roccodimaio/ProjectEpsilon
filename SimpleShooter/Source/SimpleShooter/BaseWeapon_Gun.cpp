@@ -17,6 +17,8 @@ ABaseWeapon_Gun::ABaseWeapon_Gun()
 
 void ABaseWeapon_Gun::PullTrigger()
 {
+	UE_LOG(LogTemp, Warning, TEXT("ABaseWeapon_Gun->PullTrigger()"));
+	
 	// Spawn particle effect for muzzle flash,  Use SpawnEmitterAttached so particle stays attached to Gun
 	UGameplayStatics::SpawnEmitterAttached(MuzzleFlashParticleSystem, Mesh, TEXT("MuzzleFlashSocket"));
 
@@ -31,6 +33,7 @@ void ABaseWeapon_Gun::PullTrigger()
 
 	if (bSuccess)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("ABaseWeapon_Gun->PullTrigger()->bSuccess"));
 		// Direction of shot
 		ShotDirection = -ViewPointRotation.Vector();
 
@@ -64,6 +67,8 @@ void ABaseWeapon_Gun::PullTrigger()
 
 bool ABaseWeapon_Gun::GunTrace(FHitResult& Hit, FVector& ShotDirection)
 {
+	UE_LOG(LogTemp, Warning, TEXT("ABaseWeapon_Gun->GunTrace()"));
+	
 	AActor* HitActor = Hit.GetActor();
 
 	ABaseAICharacter* BaseAICharacter = Cast<ABaseAICharacter>(HitActor);
@@ -71,6 +76,8 @@ bool ABaseWeapon_Gun::GunTrace(FHitResult& Hit, FVector& ShotDirection)
 	AController* OwnerController = GetOwnerController();
 
 	if (OwnerController == nullptr) return false;
+
+	UE_LOG(LogTemp, Warning, TEXT("ABaseWeapon_Gun->GunTrace()->OwnerController found"));
 
 	// Call GetplayerViewPoint and store the Viewpoint location and rotation into variables
 	OwnerController->GetPlayerViewPoint(ViewPointLocation, ViewPointRotation);
@@ -91,6 +98,8 @@ bool ABaseWeapon_Gun::GunTrace(FHitResult& Hit, FVector& ShotDirection)
 
 	if (BaseAICharacter)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("ABaseWeapon_Gun->GunTrace()->BaseAICharacter True"));
+		
 		USphereComponent* SphereComponent;
 
 		SphereComponent = BaseAICharacter->AttackRangeSphereComponent;
@@ -103,14 +112,24 @@ bool ABaseWeapon_Gun::GunTrace(FHitResult& Hit, FVector& ShotDirection)
 	return GetWorld()->LineTraceSingleByChannel(Hit, ViewPointLocation, End, ECollisionChannel::ECC_GameTraceChannel1, Params);
 }
 
+/**
 AController* ABaseWeapon_Gun::GetOwnerController() const
 {
+	UE_LOG(LogTemp, Warning, TEXT("ABaseWeapon_Gun->GunTrace()->GetOwnerController()"));
+
 	// Find owner of Gun
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 
 	// If owner is nullptr return
-	if (OwnerPawn == nullptr) return nullptr;
+	if (OwnerPawn == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ABaseWeapon_Gun->GunTrace()->GetOwnerController()->OwnerPawn = nullptr"));
+		return nullptr;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("ABaseWeapon_Gun->GunTrace()->GetOwnerController()->OwnerPawn found"));
 
 	// Controller of owner found
 	return OwnerPawn->GetController();
 }
+*/

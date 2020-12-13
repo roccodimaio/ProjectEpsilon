@@ -26,13 +26,13 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	FName EquippedSocketName;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	USkeletalMeshComponent* Mesh;
+
 private:
 	/*** Components***/
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* Root;
-
-	UPROPERTY(VisibleAnywhere)
-	USkeletalMeshComponent* Mesh;
 
 	/*** VARIABLES ***/
 	UPROPERTY(EditAnywhere)

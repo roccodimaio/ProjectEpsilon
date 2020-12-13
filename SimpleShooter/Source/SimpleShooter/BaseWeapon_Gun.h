@@ -47,6 +47,6 @@ private:
 	/*** FUNCTIONS ***/
 	bool GunTrace(FHitResult& Hit, FVector& ShotDirection);
 
-	AController* GetOwnerController() const;
+	//AController* GetOwnerController() const;
 	
 };

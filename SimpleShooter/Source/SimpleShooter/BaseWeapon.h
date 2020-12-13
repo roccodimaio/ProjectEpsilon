@@ -25,7 +25,7 @@ public:
 	ABaseWeapon();
 
 	/*** COMPONENTS ***/
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	USkeletalMeshComponent* Mesh;
 
 protected:
@@ -60,6 +60,8 @@ public:
 
 	void SwapWeapon(ACharacter* Character);
 
+	AController* GetOwnerController() const;
+
 	
 
 private:
@@ -67,5 +69,5 @@ private:
 	/*** COMPONENTS ***/
 	UPROPERTY(VisibleAnywhere)
 	class USceneComponent* Root;
-		
+
 };

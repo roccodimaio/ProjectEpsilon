@@ -4,6 +4,7 @@
 #include "BaseWeapon.h"
 #include "PlayerCharacter.h"
 #include "Components/SceneComponent.h"
+#include "Blueprint/UserWidget.h"
 
 // Sets default values
 ABaseWeapon::ABaseWeapon()
@@ -49,17 +50,18 @@ void ABaseWeapon::EquipWeapon(ACharacter* Character)
 
 	if (PlayerCharacter != nullptr)
 	{
-		AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "RightHandSocket");
-		
 		switch (WeaponType)
 		{
 		case EWeaponType::EPS_Katana:
 			PlayerCharacter->SetPlayerStance(EPlayerStance::EPS_Katana);
+			AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "RightHandSocket");
 			break;
 		case EWeaponType::EPS_Rifle:
 			PlayerCharacter->SetPlayerStance(EPlayerStance::EPS_Rifle);
+			AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "RightHandRifleSocket");
 			break;
 		case EWeaponType::EPS_Pistol:
+			AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "RightHandSocket");
 			PlayerCharacter->SetPlayerStance(EPlayerStance::EPS_Pistol); 
 			break;
 		case EWeaponType::EPS_MAX:
@@ -94,4 +96,23 @@ void ABaseWeapon::UnequipWeapon(ACharacter* Character)
 void ABaseWeapon::SwapWeapon(ACharacter* Character)
 {
 }
+
+AController* ABaseWeapon::GetOwnerController() const
+{
+	// Find owner of Gun
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+
+	// If owner is nullptr return
+	if (OwnerPawn == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ABaseWeapon_Gun->GunTrace()->GetOwnerController()->OwnerPawn = nullptr"));
+		return nullptr;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("ABaseWeapon_Gun->GunTrace()->GetOwnerController()->OwnerPawn found"));
+
+	// Controller of owner found
+	return OwnerPawn->GetController();
+}
+
 

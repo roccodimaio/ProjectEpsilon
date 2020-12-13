@@ -4,6 +4,9 @@
 #include "SimpleShooterPlayerController.h"
 #include "TimerManager.h"
 #include "Blueprint/UserWidget.h"
+#include "BaseWeapon.h"
+#include "BaseWeapon_Gun.h"
+
 
 ASimpleShooterPlayerController::ASimpleShooterPlayerController()
 {
@@ -16,6 +19,7 @@ void ASimpleShooterPlayerController::BeginPlay()
 
 	// Create LoseScreen widget
 	HUD = CreateWidget(this, HUDClass);
+	GunHUD = CreateWidget(this, GunHUDClass);
 
 	if (HUD != nullptr)
 	{
@@ -23,6 +27,36 @@ void ASimpleShooterPlayerController::BeginPlay()
 		HUD->AddToViewport();
 	}
 
+}
+
+void ASimpleShooterPlayerController::DisplayWeaponHUD(ABaseWeapon* Weapon)
+{
+	if (Weapon != nullptr)
+	{
+		ABaseWeapon_Gun* EquippedGun = Cast<ABaseWeapon_Gun>(Weapon);
+
+		if (EquippedGun)
+		{
+			if (GunHUD != nullptr)
+			{
+				GunHUD->AddToViewport();
+			}
+		}
+		else
+		{
+			if (GunHUD != nullptr)
+			{
+				GunHUD->RemoveFromViewport(); 
+			}
+		}
+	}
+	else
+	{
+		if (GunHUD != nullptr)
+		{
+			GunHUD->RemoveFromViewport();
+		}
+	}
 }
 
 void ASimpleShooterPlayerController::GameHasEnded(AActor* EndGameFocus, bool bIsWinner)

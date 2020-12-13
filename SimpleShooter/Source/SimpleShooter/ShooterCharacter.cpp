@@ -33,9 +33,7 @@ void AShooterCharacter::BeginPlay()
 	
 	// Set ShooterCharacter as the GunOwner
 	Gun->SetOwner(this); 
-	
-
-	
+		
 }
 
 // Called every frame

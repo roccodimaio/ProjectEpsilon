@@ -18,6 +18,7 @@ enum class EPlayerStance : uint8
 	EPS_MAX UMETA(DisplayName = "DefaultMax")
 };
 
+UENUM(BlueprintType)
 enum class EWeaponEquipedStatus : uint8
 {
 	EWES_Unarmed UMETA(DisplayName = "Unarmed"),
@@ -46,10 +47,13 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	/*** VARIABLES ***/
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ABaseWeapon* ActiveWeapon = nullptr;
 	
 	/*** FUNCTIONS ***/
 	void SetPlayerStance(EPlayerStance Stance);
+
+	UFUNCTION(BlueprintPure)
 	EPlayerStance GetPlayerStance();
 
 	void SetWeaponEquippedStatus(EWeaponEquipedStatus Status);
@@ -72,6 +76,10 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	float GetMaxHealth() const;
+
+	/** Function to shoot equipped BaseGun */
+	void PullTrigger();
+
 
 private:
 
@@ -102,7 +110,7 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	ABaseWeapon* SecondaryWeapon = nullptr;
-		
+
 	EPlayerStance PlayerStance = EPlayerStance::EPS_Unarmed;
 
 	EWeaponEquipedStatus WeaponEquippedStatus = EWeaponEquipedStatus::EWES_Unarmed; 
@@ -110,6 +118,12 @@ private:
 	FName MainSocketName;
 
 	FName SecondarySocketName; 
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UUserWidget> WeaponHUDClass;
+
+	UPROPERTY(EditAnywhere)
+	UUserWidget* EquippedWeaponHUD;
 	
 	//UPROPERTY(EditDefaultsOnly)
 	//TSubclassOf<class AGun> GunClass;
@@ -131,5 +145,4 @@ private:
 	void LookUpRate(float AxisValue);
 	void LookRightRate(float AxisValue);
 	void SwapWeapon();
-	
 };
