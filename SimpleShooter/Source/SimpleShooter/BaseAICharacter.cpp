@@ -156,7 +156,7 @@ void ABaseAICharacter::Attack()
 
 			FString AttackSuffex = FString::FromInt(Attack);
 
-			UE_LOG(LogTemp, Warning, TEXT("Attack # from RandRange %s"), *AttackSuffex);
+			//UE_LOG(LogTemp, Warning, TEXT("Attack # from RandRange %s"), *AttackSuffex);
 
 			AttackName.Append(AttackSuffex);
 

@@ -49,6 +49,34 @@ public:
 	/*** VARIABLES ***/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ABaseWeapon* ActiveWeapon = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsAttacking = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bCanAttack = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bListeningForComboInput = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 LightAttackNumber = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 HeavyAttackNumber = 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 ComboCount = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 ComboMax = 6;
+
+
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* PunchMontage;
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* KickMontage;
 	
 	/*** FUNCTIONS ***/
 	void SetPlayerStance(EPlayerStance Stance);
@@ -80,6 +108,17 @@ public:
 	/** Function to shoot equipped BaseGun */
 	void PullTrigger();
 
+	UFUNCTION(BlueprintCallable)
+	void ActionButtonPressed();
+
+	UFUNCTION(BlueprintCallable)
+	void ActionButtonReleased();
+
+	UFUNCTION(BlueprintCallable)
+	void HeavyAttackPressed();
+
+	UFUNCTION(BlueprintCallable)
+	void HeavyAttackReleased();
 
 private:
 

@@ -10,6 +10,7 @@
 #include "BaseWeapon_Gun.h"
 #include "Blueprint/UserWidget.h"
 #include "SimpleShooterPlayerController.h"
+#include "Animation/AnimInstance.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -78,6 +79,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction(TEXT("SwapWeapon"), IE_Pressed, this, &APlayerCharacter::SwapWeapon);
 	PlayerInputComponent->BindAction(TEXT("PullTrigger"), IE_Pressed, this, &APlayerCharacter::PullTrigger);
+	PlayerInputComponent->BindAction(TEXT("ActionButton"), IE_Pressed, this, &APlayerCharacter::ActionButtonPressed);
+	PlayerInputComponent->BindAction(TEXT("ActionButton"), IE_Released, this, &APlayerCharacter::ActionButtonReleased);
+	PlayerInputComponent->BindAction(TEXT("HeavyAttackButton"), IE_Pressed, this, &APlayerCharacter::HeavyAttackPressed);
+	PlayerInputComponent->BindAction(TEXT("HeavyAttackButton"), IE_Released, this, &APlayerCharacter::HeavyAttackReleased);
 
 }
 
@@ -143,6 +148,118 @@ void APlayerCharacter::PullTrigger()
 	{
 		GunWeapon->PullTrigger(); 
 	}
+}
+
+void APlayerCharacter::ActionButtonPressed()
+{
+	if (bIsAttacking == true)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->ActionButtonPressed()-> bIsAttacking == true"));
+		return;
+	}
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	if (bCanAttack && bListeningForComboInput && ComboCount < ComboMax)
+	{
+		if (PunchMontage && AnimInstance)
+		{
+			float MontageDuration = AnimInstance->Montage_Play(PunchMontage, 1.f);
+
+			if (MontageDuration > 0.f)
+			{
+				ComboCount += 1;
+				LightAttackNumber += 1;
+
+				FString AttackNumber = FString::FromInt(LightAttackNumber);
+				FName ConvertedAttackNumber(AttackNumber);
+
+				AnimInstance->Montage_JumpToSection(ConvertedAttackNumber, PunchMontage);
+			}
+			
+		}
+	}
+	else if (bCanAttack && bIsAttacking == false)
+	{
+		if (PunchMontage && AnimInstance)
+		{
+			float MontageDuration = AnimInstance->Montage_Play(PunchMontage, 1.f);
+
+			if (MontageDuration > 0.f)
+			{
+				LightAttackNumber = 1;
+				HeavyAttackNumber = 1;
+				ComboCount = 0;
+				FString AttackNumber = FString::FromInt(LightAttackNumber);
+				FName ConvertedAttackNumber(AttackNumber);
+
+				bIsAttacking = true;
+
+				AnimInstance->Montage_JumpToSection(ConvertedAttackNumber, PunchMontage);
+			}
+		}
+	}
+}
+
+void APlayerCharacter::ActionButtonReleased()
+{
+}
+
+void APlayerCharacter::HeavyAttackPressed()
+{
+	if (bIsAttacking == true)
+	{
+		return;
+	}
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	if (bCanAttack && bListeningForComboInput && ComboCount < ComboMax)
+	{
+		if (KickMontage && AnimInstance)
+		{
+			float MontageDuration = AnimInstance->Montage_Play(KickMontage, 1.f);
+			UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->HeavyAttackPressed()-> KickMontage, AnimInstance"));
+			if (MontageDuration > 0.f)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->HeavyAttackPressed()-> MontageDuration"));
+				ComboCount += 1;
+				HeavyAttackNumber += 1;
+
+				FString AttackNumber = FString::FromInt(HeavyAttackNumber);
+				FName ConvertedAttackNumber(AttackNumber);
+
+				bIsAttacking = true;
+
+				AnimInstance->Montage_JumpToSection(ConvertedAttackNumber, KickMontage);
+			}
+
+		}
+	}
+	else if (bCanAttack && bIsAttacking == false)
+	{
+		if (KickMontage && AnimInstance)
+		{
+			float MontageDuration = AnimInstance->Montage_Play(KickMontage, 1.f);
+
+			if (MontageDuration > 0.f)
+			{
+				LightAttackNumber = 1;
+				HeavyAttackNumber = 1;
+				ComboCount = 0;
+				FString AttackNumber = FString::FromInt(HeavyAttackNumber);
+				FName ConvertedAttackNumber(AttackNumber);
+
+				bIsAttacking = true;
+
+				AnimInstance->Montage_JumpToSection(ConvertedAttackNumber, KickMontage);
+			}
+		}
+	}
+}
+
+void APlayerCharacter::HeavyAttackReleased()
+{
 }
 
 void APlayerCharacter::MoveForward(float AxisValue)
