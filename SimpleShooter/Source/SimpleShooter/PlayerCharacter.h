@@ -35,6 +35,21 @@ public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
 
+	/*** COMPONENTS ***/
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	class UBoxComponent* RightHandCollision;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UBoxComponent* LeftHandCollision;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UBoxComponent* RightFootCollision;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UBoxComponent* LeftFootCollision;
+
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -71,12 +86,30 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 ComboMax = 6;
 
-
 	UPROPERTY(EditAnywhere)
 	class UAnimMontage* PunchMontage;
 
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* KickMontage;
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* KatanaMontage;
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* HeavyKatanaMontage;
+
+
+	/*********************************************************************************/
+	/*** PLAYER STATS ***/
+	UPROPERTY(EditDefaultsOnly)
+	float MaxHealth = 100.f;
+
+	UPROPERTY(VisibleAnywhere)
+	float Health;
+
+	UPROPERTY(EditAnywhere)
+	float UnarmedDamage = 10.f;;
+
 	
 	/*** FUNCTIONS ***/
 	void SetPlayerStance(EPlayerStance Stance);
@@ -120,6 +153,42 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HeavyAttackReleased();
 
+	void Attack(UAnimMontage* AttackMontage); 
+
+	void HeavyAttack(UAnimMontage* AttackMontage);
+
+	/** Function for when Right hand begins overlap with collision volume */
+	UFUNCTION()
+	virtual void OnOverlapBeginRightHand(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	/** Function for when Right hand ends overlap with collision volume*/
+	UFUNCTION()
+	virtual void OnOverlapEndRightHand(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	/** Function for when Right hand begins overlap with collision volume */
+	UFUNCTION()
+	virtual void OnOverlapBeginLeftHand(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	/** Function for when Right hand ends overlap with collision volume*/
+	UFUNCTION()
+	virtual void OnOverlapEndLeftHand(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	/** Function for when Right hand begins overlap with collision volume */
+	UFUNCTION()
+	virtual void OnOverlapBeginRightFoot(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	/** Function for when Right hand ends overlap with collision volume*/
+	UFUNCTION()
+	virtual void OnOverlapEndRightFoot(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	/** Function for when Right hand begins overlap with collision volume */
+	UFUNCTION()
+	virtual void OnOverlapBeginLeftFoot(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	/** Function for when Right hand ends overlap with collision volume*/
+	UFUNCTION()
+	virtual void OnOverlapEndLeftFoot(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
 private:
 
 	/*** VARIABLES ***/
@@ -128,12 +197,6 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float RotationRateLookUp = 10.f;
-
-	UPROPERTY(EditDefaultsOnly)
-	float MaxHealth = 100.f;
-
-	UPROPERTY(VisibleAnywhere)
-	float Health;
 
 	UPROPERTY(EditAnywhere)
 	bool bIsDead = false;
@@ -163,6 +226,15 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	UUserWidget* EquippedWeaponHUD;
+
+	class UAnimInstance* OwnerAnimInstance;
+
+	class UPlayerCharacterAnimInstance* PlayerAnimInstance;
+
+	FVector ViewPointLocation;
+
+	FRotator ViewPointRotation;
+
 	
 	//UPROPERTY(EditDefaultsOnly)
 	//TSubclassOf<class AGun> GunClass;

@@ -11,6 +11,9 @@
 #include "Blueprint/UserWidget.h"
 #include "SimpleShooterPlayerController.h"
 #include "Animation/AnimInstance.h"
+#include "PlayerCharacterAnimInstance.h"
+#include "Components/BoxComponent.h"
+#include "BaseAICharacter.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -18,12 +21,42 @@ APlayerCharacter::APlayerCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	RightHandCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("RightHandCollisionVolume"));
+	RightHandCollision->SetupAttachment(GetMesh(), "RightHandSocket");
+
+	LeftHandCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftHandCollision"));
+	LeftHandCollision->SetupAttachment(GetMesh(), "LeftHandSocket");
+
+	RightFootCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("RightFootCollision"));
+	RightFootCollision->SetupAttachment(GetMesh(), "RightFootSocket");
+
+	LeftFootCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftFootCollision"));
+	LeftFootCollision->SetupAttachment(GetMesh(), "LeftFootSocket");
+
 }
 
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	RightHandCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftHandCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightFootCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftFootCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	RightHandCollision->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBeginRightHand);
+	RightHandCollision->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapEndRightHand);
+
+	LeftHandCollision->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBeginLeftHand);
+	LeftHandCollision->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapEndLeftHand); 
+
+	RightFootCollision->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBeginRightFoot);
+	RightFootCollision->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapEndRightFoot);
+
+	LeftFootCollision->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBeginLeftFoot);
+	LeftFootCollision->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapEndLeftFoot);
+
 
 	Health = MaxHealth;
 
@@ -40,6 +73,20 @@ void APlayerCharacter::BeginPlay()
 
 	// Attach SecondaryWeapon to the appropriate Socket
 	SecondaryWeapon->UnequipWeapon(this);
+
+	OwnerAnimInstance = GetMesh()->GetAnimInstance();
+
+	if (OwnerAnimInstance != nullptr)
+	{
+		UPlayerCharacterAnimInstance* VerifyAnimInstance = Cast<UPlayerCharacterAnimInstance>(OwnerAnimInstance);
+
+		if (VerifyAnimInstance)
+		{
+			PlayerAnimInstance = VerifyAnimInstance;
+		}
+	}
+
+
 
 
 	// Spawn blueprint of Gun.h
@@ -158,6 +205,34 @@ void APlayerCharacter::ActionButtonPressed()
 		return;
 	}
 
+	switch (PlayerStance)
+	{
+	case EPlayerStance::EPS_Unarmed:
+		Attack(PunchMontage);
+		break;
+	case EPlayerStance::EPS_Katana:
+		Attack(KatanaMontage);
+		break;
+	case EPlayerStance::EPS_Rifle:
+		if (ActiveWeapon != nullptr)
+		{
+			ABaseWeapon_Gun* EquippedGun = Cast<ABaseWeapon_Gun>(ActiveWeapon);
+
+			if (EquippedGun)
+			{
+				EquippedGun->PullTrigger();
+			}
+		}
+		break;
+	case EPlayerStance::EPS_Pistol:
+		break;
+	case EPlayerStance::EPS_MAX:
+		break;
+	default:
+		break;
+	}
+
+	/**
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
 	if (bCanAttack && bListeningForComboInput && ComboCount < ComboMax)
@@ -199,6 +274,7 @@ void APlayerCharacter::ActionButtonPressed()
 			}
 		}
 	}
+	*/
 }
 
 void APlayerCharacter::ActionButtonReleased()
@@ -211,7 +287,27 @@ void APlayerCharacter::HeavyAttackPressed()
 	{
 		return;
 	}
-
+	
+	switch (PlayerStance)
+	{
+	case EPlayerStance::EPS_Unarmed:
+		HeavyAttack(KickMontage);
+		break;
+	case EPlayerStance::EPS_Katana:
+		HeavyAttack(HeavyKatanaMontage);
+		break;
+	case EPlayerStance::EPS_Rifle:
+		
+		break;
+	case EPlayerStance::EPS_Pistol:
+		break;
+	case EPlayerStance::EPS_MAX:
+		break;
+	default:
+		break;
+	}
+	
+	/**
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 
 	if (bCanAttack && bListeningForComboInput && ComboCount < ComboMax)
@@ -256,9 +352,198 @@ void APlayerCharacter::HeavyAttackPressed()
 			}
 		}
 	}
+	*/
 }
 
 void APlayerCharacter::HeavyAttackReleased()
+{
+}
+
+void APlayerCharacter::Attack(UAnimMontage* AttackMontage)
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	if (AttackMontage == nullptr)
+	{
+		return; 
+	}
+	
+	if (bCanAttack && bListeningForComboInput && ComboCount < ComboMax)
+	{
+		if (AttackMontage && AnimInstance)
+		{
+			float MontageDuration = AnimInstance->Montage_Play(AttackMontage, 1.f);
+
+			if (MontageDuration > 0.f)
+			{
+				ComboCount += 1;
+				LightAttackNumber += 1;
+
+				FString AttackNumber = FString::FromInt(LightAttackNumber);
+				FName ConvertedAttackNumber(AttackNumber);
+
+				AnimInstance->Montage_JumpToSection(ConvertedAttackNumber, AttackMontage);
+			}
+
+		}
+	}
+	else if (bCanAttack && bIsAttacking == false)
+	{
+		if (AttackMontage && AnimInstance)
+		{
+			float MontageDuration = AnimInstance->Montage_Play(AttackMontage, 1.f);
+
+			if (MontageDuration > 0.f)
+			{
+				LightAttackNumber = 1;
+				HeavyAttackNumber = 1;
+				ComboCount = 0;
+				FString AttackNumber = FString::FromInt(LightAttackNumber);
+				FName ConvertedAttackNumber(AttackNumber);
+
+				bIsAttacking = true;
+
+				AnimInstance->Montage_JumpToSection(ConvertedAttackNumber, AttackMontage);
+			}
+		}
+	}
+
+}
+
+void APlayerCharacter::HeavyAttack(UAnimMontage* AttackMontage)
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	if (AttackMontage == nullptr)
+	{
+		return;
+	}
+	
+	if (bCanAttack && bListeningForComboInput && ComboCount < ComboMax)
+	{
+		if (AttackMontage && AnimInstance)
+		{
+			float MontageDuration = AnimInstance->Montage_Play(AttackMontage, 1.f);
+			//UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->HeavyAttackPressed()-> KickMontage, AnimInstance"));
+			if (MontageDuration > 0.f)
+			{
+				//UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->HeavyAttackPressed()-> MontageDuration"));
+				ComboCount += 1;
+				HeavyAttackNumber += 1;
+
+				FString AttackNumber = FString::FromInt(HeavyAttackNumber);
+				FName ConvertedAttackNumber(AttackNumber);
+
+				bIsAttacking = true;
+
+				AnimInstance->Montage_JumpToSection(ConvertedAttackNumber, AttackMontage);
+			}
+
+		}
+	}
+	else if (bCanAttack && bIsAttacking == false)
+	{
+		if (AttackMontage && AnimInstance)
+		{
+			float MontageDuration = AnimInstance->Montage_Play(AttackMontage, 1.f);
+
+			if (MontageDuration > 0.f)
+			{
+				LightAttackNumber = 1;
+				HeavyAttackNumber = 1;
+				ComboCount = 0;
+				FString AttackNumber = FString::FromInt(HeavyAttackNumber);
+				FName ConvertedAttackNumber(AttackNumber);
+
+				bIsAttacking = true;
+
+				AnimInstance->Montage_JumpToSection(ConvertedAttackNumber, AttackMontage);
+			}
+		}
+	}
+}
+
+void APlayerCharacter::OnOverlapBeginRightHand(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor != nullptr)
+	{
+		ABaseAICharacter* EnemyCharacter = Cast<ABaseAICharacter>(OtherActor);
+
+		if (EnemyCharacter)
+		{
+			AController* OwnerController = GetController();
+
+			OwnerController->GetPlayerViewPoint(ViewPointLocation, ViewPointRotation);
+			
+			EnemyCharacter->TakeDamage(UnarmedDamage, FDamageEvent(), OwnerController, this);
+		}
+	}
+}
+
+void APlayerCharacter::OnOverlapEndRightHand(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+}
+
+void APlayerCharacter::OnOverlapBeginLeftHand(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor != nullptr)
+	{
+		ABaseAICharacter* EnemyCharacter = Cast<ABaseAICharacter>(OtherActor);
+
+		if (EnemyCharacter)
+		{
+			AController* OwnerController = GetController();
+
+			OwnerController->GetPlayerViewPoint(ViewPointLocation, ViewPointRotation);
+
+			EnemyCharacter->TakeDamage(UnarmedDamage, FDamageEvent(), OwnerController, this);
+		}
+	}
+}
+
+void APlayerCharacter::OnOverlapEndLeftHand(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+}
+
+void APlayerCharacter::OnOverlapBeginRightFoot(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor != nullptr)
+	{
+		ABaseAICharacter* EnemyCharacter = Cast<ABaseAICharacter>(OtherActor);
+
+		if (EnemyCharacter)
+		{
+			AController* OwnerController = GetController();
+
+			OwnerController->GetPlayerViewPoint(ViewPointLocation, ViewPointRotation);
+
+			EnemyCharacter->TakeDamage(UnarmedDamage, FDamageEvent(), OwnerController, this);
+		}
+	}
+}
+
+void APlayerCharacter::OnOverlapEndRightFoot(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+}
+
+void APlayerCharacter::OnOverlapBeginLeftFoot(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor != nullptr)
+	{
+		ABaseAICharacter* EnemyCharacter = Cast<ABaseAICharacter>(OtherActor);
+
+		if (EnemyCharacter)
+		{
+			AController* OwnerController = GetController();
+
+			OwnerController->GetPlayerViewPoint(ViewPointLocation, ViewPointRotation);
+
+			EnemyCharacter->TakeDamage(UnarmedDamage, FDamageEvent(), OwnerController, this);
+		}
+	}
+}
+
+void APlayerCharacter::OnOverlapEndLeftFoot(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 }
 
@@ -332,6 +617,38 @@ void APlayerCharacter::SwapWeapon()
 void APlayerCharacter::SetPlayerStance(EPlayerStance Stance)
 {
 	PlayerStance = Stance; 
+	
+	switch (Stance)
+	{
+	case EPlayerStance::EPS_Unarmed:
+		PlayerAnimInstance->bUnarmed = true;
+		PlayerAnimInstance->bRifleEquipped = false; 
+		PlayerAnimInstance->bKatanaEquipped = false; 
+		PlayerAnimInstance->bPistolEquipped = false; 
+		break;
+	case EPlayerStance::EPS_Katana:
+		PlayerAnimInstance->bUnarmed = false;
+		PlayerAnimInstance->bRifleEquipped = false;
+		PlayerAnimInstance->bKatanaEquipped = true;
+		PlayerAnimInstance->bPistolEquipped = false;
+		break;
+	case EPlayerStance::EPS_Rifle:
+		PlayerAnimInstance->bUnarmed = false;
+		PlayerAnimInstance->bRifleEquipped = true;
+		PlayerAnimInstance->bKatanaEquipped = false;
+		PlayerAnimInstance->bPistolEquipped = false;
+		break;
+	case EPlayerStance::EPS_Pistol:
+		PlayerAnimInstance->bUnarmed = false;
+		PlayerAnimInstance->bRifleEquipped = false;
+		PlayerAnimInstance->bKatanaEquipped = false;
+		PlayerAnimInstance->bPistolEquipped = true;
+		break;
+	case EPlayerStance::EPS_MAX:
+		break;
+	default:
+		break;
+	}
 }
 
 EPlayerStance APlayerCharacter::GetPlayerStance()

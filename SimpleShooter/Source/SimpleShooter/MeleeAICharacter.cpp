@@ -20,16 +20,14 @@ AMeleeAICharacter::AMeleeAICharacter()
 	LeftHandCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftHandCollisionVolume"));
 	LeftHandCollision->SetupAttachment(GetMesh(), "LeftHandSocket");
 
-	RightHandCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	LeftHandCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AMeleeAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//RightHandCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	//LeftHandCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightHandCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	LeftHandCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	RightHandCollision->OnComponentBeginOverlap.AddDynamic(this, &AMeleeAICharacter::OnOverlapBeginRightHand);
 	RightHandCollision->OnComponentEndOverlap.AddDynamic(this, &AMeleeAICharacter::OnOverlapEndRightHand);

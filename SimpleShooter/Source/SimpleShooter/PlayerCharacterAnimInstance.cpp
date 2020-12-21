@@ -13,7 +13,12 @@ void UPlayerCharacterAnimInstance::NativeInitializeAnimation()
 
 		if (Pawn != nullptr)
 		{
-			PlayerCharacter = Cast<APlayerCharacter>(Pawn); 
+			APlayerCharacter* OwnerCharacter = Cast<APlayerCharacter>(Pawn); 
+			
+			if (OwnerCharacter)
+			{
+				PlayerCharacter = OwnerCharacter;
+			}
 		}
 
 	}

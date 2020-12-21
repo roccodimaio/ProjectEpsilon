@@ -26,4 +26,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
 	class APlayerCharacter* PlayerCharacter = nullptr; 
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool bUnarmed = true; 
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool bRifleEquipped = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool bKatanaEquipped = false; 
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool bPistolEquipped = false; 
 };
