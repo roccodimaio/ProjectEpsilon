@@ -14,6 +14,9 @@
 #include "PlayerCharacterAnimInstance.h"
 #include "Components/BoxComponent.h"
 #include "BaseAICharacter.h"
+#include "Kismet/GameplayStatics.h"
+#include "Engine/SkeletalMeshSocket.h"
+#include "ProjectileSkillBase.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -32,6 +35,9 @@ APlayerCharacter::APlayerCharacter()
 
 	LeftFootCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftFootCollision"));
 	LeftFootCollision->SetupAttachment(GetMesh(), "LeftFootSocket");
+
+	SkillOneSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("SkillOneSpawnPoint"));
+	SkillOneSpawnPoint->SetupAttachment(GetMesh());
 
 }
 
@@ -56,6 +62,7 @@ void APlayerCharacter::BeginPlay()
 
 	LeftFootCollision->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBeginLeftFoot);
 	LeftFootCollision->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapEndLeftFoot);
+
 
 
 	Health = MaxHealth;
@@ -130,6 +137,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("ActionButton"), IE_Released, this, &APlayerCharacter::ActionButtonReleased);
 	PlayerInputComponent->BindAction(TEXT("HeavyAttackButton"), IE_Pressed, this, &APlayerCharacter::HeavyAttackPressed);
 	PlayerInputComponent->BindAction(TEXT("HeavyAttackButton"), IE_Released, this, &APlayerCharacter::HeavyAttackReleased);
+	PlayerInputComponent->BindAction(TEXT("SkillButton"), IE_Pressed, this, &APlayerCharacter::SkillAttack);
 
 }
 
@@ -463,6 +471,19 @@ void APlayerCharacter::HeavyAttack(UAnimMontage* AttackMontage)
 	}
 }
 
+void APlayerCharacter::SkillAttack()
+{
+	if (ProjectileSkillClass)
+	{
+		FVector ProjectileSkillSpawnLocation = SkillOneSpawnPoint->GetComponentLocation();
+		FRotator ProjectileSkillSpawnRotation = SkillOneSpawnPoint->GetComponentRotation();
+
+		AProjectileSkillBase* TempProjectile = GetWorld()->SpawnActor<AProjectileSkillBase>(ProjectileSkillClass, ProjectileSkillSpawnLocation, ProjectileSkillSpawnRotation);
+
+		TempProjectile->SetOwner(this);
+	}
+}
+
 void APlayerCharacter::OnOverlapBeginRightHand(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor != nullptr)
@@ -471,10 +492,18 @@ void APlayerCharacter::OnOverlapBeginRightHand(UPrimitiveComponent* OverlappedCo
 
 		if (EnemyCharacter)
 		{
-			AController* OwnerController = GetController();
-
-			OwnerController->GetPlayerViewPoint(ViewPointLocation, ViewPointRotation);
 			
+			const USkeletalMeshSocket* FistSocket = GetMesh()->GetSocketByName("FX_RightHand");
+			if (EnemyCharacter->ImpactParticleSystem && FistSocket)
+			{
+					FVector SocketLocation = FistSocket->GetSocketLocation(GetMesh());
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EnemyCharacter->ImpactParticleSystem, SocketLocation, FRotator(0.f), false); 
+			}
+			
+			AController* OwnerController = GetController();
+			OwnerController->GetPlayerViewPoint(ViewPointLocation, ViewPointRotation);
+			FPointDamageEvent DamageEvent(UnarmedDamage, SweepResult, -ViewPointRotation.Vector(), nullptr);
+
 			EnemyCharacter->TakeDamage(UnarmedDamage, FDamageEvent(), OwnerController, this);
 		}
 	}
@@ -495,6 +524,8 @@ void APlayerCharacter::OnOverlapBeginLeftHand(UPrimitiveComponent* OverlappedCom
 			AController* OwnerController = GetController();
 
 			OwnerController->GetPlayerViewPoint(ViewPointLocation, ViewPointRotation);
+
+			FPointDamageEvent DamageEvent(UnarmedDamage, SweepResult, -ViewPointRotation.Vector(), nullptr);
 
 			EnemyCharacter->TakeDamage(UnarmedDamage, FDamageEvent(), OwnerController, this);
 		}
@@ -517,6 +548,8 @@ void APlayerCharacter::OnOverlapBeginRightFoot(UPrimitiveComponent* OverlappedCo
 
 			OwnerController->GetPlayerViewPoint(ViewPointLocation, ViewPointRotation);
 
+			FPointDamageEvent DamageEvent(UnarmedDamage, SweepResult, -ViewPointRotation.Vector(), nullptr);
+
 			EnemyCharacter->TakeDamage(UnarmedDamage, FDamageEvent(), OwnerController, this);
 		}
 	}
@@ -538,6 +571,8 @@ void APlayerCharacter::OnOverlapBeginLeftFoot(UPrimitiveComponent* OverlappedCom
 
 			OwnerController->GetPlayerViewPoint(ViewPointLocation, ViewPointRotation);
 
+			FPointDamageEvent DamageEvent(UnarmedDamage, SweepResult, -ViewPointRotation.Vector(), nullptr);
+
 			EnemyCharacter->TakeDamage(UnarmedDamage, FDamageEvent(), OwnerController, this);
 		}
 	}
@@ -545,6 +580,48 @@ void APlayerCharacter::OnOverlapBeginLeftFoot(UPrimitiveComponent* OverlappedCom
 
 void APlayerCharacter::OnOverlapEndLeftFoot(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+}
+
+void APlayerCharacter::EnableRightHandCollision()
+{
+	RightHandCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	
+}
+
+void APlayerCharacter::DisableRightHandCollision()
+{
+	RightHandCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void APlayerCharacter::EnableLeftHandCollision()
+{
+	
+	LeftHandCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void APlayerCharacter::DisableLeftHandCollision()
+{
+	LeftHandCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void APlayerCharacter::EnableRightFootCollision()
+{
+	RightFootCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void APlayerCharacter::DisableRightFootCollision()
+{
+	RightFootCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void APlayerCharacter::EnableLeftFootCollision()
+{
+	LeftFootCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void APlayerCharacter::DisableLeftFootCollision()
+{
+	LeftFootCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void APlayerCharacter::MoveForward(float AxisValue)
@@ -571,6 +648,13 @@ void APlayerCharacter::LookRightRate(float AxisValue)
 
 void APlayerCharacter::SwapWeapon()
 {
+	LightAttackNumber = 1;
+	HeavyAttackNumber = 1;
+	ComboCount = 0;
+
+	bIsAttacking = false;
+	bCanAttack = true; 
+
 	switch (WeaponEquippedStatus)
 	{
 	case EWeaponEquipedStatus::EWES_Unarmed:

@@ -48,6 +48,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UBoxComponent* LeftFootCollision;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USceneComponent* SkillOneSpawnPoint;
+
 
 
 protected:
@@ -108,7 +111,7 @@ public:
 	float Health;
 
 	UPROPERTY(EditAnywhere)
-	float UnarmedDamage = 10.f;;
+	float UnarmedDamage = 10.f;
 
 	
 	/*** FUNCTIONS ***/
@@ -157,6 +160,9 @@ public:
 
 	void HeavyAttack(UAnimMontage* AttackMontage);
 
+	void SkillAttack();
+
+
 	/** Function for when Right hand begins overlap with collision volume */
 	UFUNCTION()
 	virtual void OnOverlapBeginRightHand(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -188,6 +194,32 @@ public:
 	/** Function for when Right hand ends overlap with collision volume*/
 	UFUNCTION()
 	virtual void OnOverlapEndLeftFoot(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION(BlueprintCallable)
+	void EnableRightHandCollision();
+
+	UFUNCTION(BlueprintCallable)
+	void DisableRightHandCollision();
+
+	UFUNCTION(BlueprintCallable)
+	void EnableLeftHandCollision();
+
+	UFUNCTION(BlueprintCallable)
+	void DisableLeftHandCollision();
+
+	UFUNCTION(BlueprintCallable)
+	void EnableRightFootCollision();
+
+	UFUNCTION(BlueprintCallable)
+	void DisableRightFootCollision();
+
+	UFUNCTION(BlueprintCallable)
+	void EnableLeftFootCollision();
+
+	UFUNCTION(BlueprintCallable)
+	void DisableLeftFootCollision();
+
+
 
 private:
 
@@ -225,6 +257,9 @@ private:
 	TSubclassOf<class UUserWidget> WeaponHUDClass;
 
 	UPROPERTY(EditAnywhere)
+	TSubclassOf<class AProjectileSkillBase> ProjectileSkillClass;
+
+	UPROPERTY(EditAnywhere)
 	UUserWidget* EquippedWeaponHUD;
 
 	class UAnimInstance* OwnerAnimInstance;
@@ -234,6 +269,7 @@ private:
 	FVector ViewPointLocation;
 
 	FRotator ViewPointRotation;
+
 
 	
 	//UPROPERTY(EditDefaultsOnly)

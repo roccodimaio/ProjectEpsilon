@@ -105,11 +105,11 @@ AController* ABaseWeapon::GetOwnerController() const
 	// If owner is nullptr return
 	if (OwnerPawn == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ABaseWeapon_Gun->GunTrace()->GetOwnerController()->OwnerPawn = nullptr"));
+		//UE_LOG(LogTemp, Warning, TEXT("ABaseWeapon_Gun->GunTrace()->GetOwnerController()->OwnerPawn = nullptr"));
 		return nullptr;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("ABaseWeapon_Gun->GunTrace()->GetOwnerController()->OwnerPawn found"));
+	//UE_LOG(LogTemp, Warning, TEXT("ABaseWeapon_Gun->GunTrace()->GetOwnerController()->OwnerPawn found"));
 
 	// Controller of owner found
 	return OwnerPawn->GetController();

@@ -24,7 +24,7 @@ public:
 	class APawn* Pawn = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
-	class APlayerCharacter* PlayerCharacter = nullptr; 
+	class APlayerCharacter* RefToPlayerCharacter = nullptr; 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	bool bUnarmed = true; 

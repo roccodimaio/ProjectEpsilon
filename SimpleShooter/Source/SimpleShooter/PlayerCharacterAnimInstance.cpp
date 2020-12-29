@@ -17,7 +17,7 @@ void UPlayerCharacterAnimInstance::NativeInitializeAnimation()
 			
 			if (OwnerCharacter)
 			{
-				PlayerCharacter = OwnerCharacter;
+				RefToPlayerCharacter = OwnerCharacter;
 			}
 		}
 
