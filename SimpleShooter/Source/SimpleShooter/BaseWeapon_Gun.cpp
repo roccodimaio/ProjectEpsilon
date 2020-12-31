@@ -67,7 +67,7 @@ void ABaseWeapon_Gun::PullTrigger()
 
 bool ABaseWeapon_Gun::GunTrace(FHitResult& Hit, FVector& ShotDirection)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ABaseWeapon_Gun->GunTrace()"));
+	//UE_LOG(LogTemp, Warning, TEXT("ABaseWeapon_Gun->GunTrace()"));
 	
 	AActor* HitActor = Hit.GetActor();
 
@@ -77,7 +77,7 @@ bool ABaseWeapon_Gun::GunTrace(FHitResult& Hit, FVector& ShotDirection)
 
 	if (OwnerController == nullptr) return false;
 
-	UE_LOG(LogTemp, Warning, TEXT("ABaseWeapon_Gun->GunTrace()->OwnerController found"));
+	//UE_LOG(LogTemp, Warning, TEXT("ABaseWeapon_Gun->GunTrace()->OwnerController found"));
 
 	// Call GetplayerViewPoint and store the Viewpoint location and rotation into variables
 	OwnerController->GetPlayerViewPoint(ViewPointLocation, ViewPointRotation);

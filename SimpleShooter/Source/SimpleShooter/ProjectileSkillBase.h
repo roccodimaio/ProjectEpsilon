@@ -17,13 +17,23 @@ public:
 
 	/*** COMPONENTS ***/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class USphereComponent* CollisionComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UProjectileMovementComponent* ProjectileSkillMovement;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* ProjectileSkillMesh;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effects", meta = (AllowPrivateAccess = "true"))
 	class UParticleSystemComponent* ParticleSkillTrail;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+	class UNiagaraSystem* NiagaraEffect;
+
+	/*** FUNCTIONS ***/
+	UFUNCTION()
+	void FireInDirection(const FVector& FireDirection);
 
 
 protected:
@@ -58,10 +68,22 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Sounds")
 	USoundBase* LaunchSound;
 
+	FVector ViewPointLocation;
+
+	FRotator ViewPointRotation;
+
+	UPROPERTY(EditAnywhere)
+	float MaxRange = 1000.f;
+
+	//class UNiagaraComponent* NiagaraSystemInstance;
 
 	/** FUNCTIONS */
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpule, const FHitResult& Hit);
+
+	bool TracePath(FHitResult& Hit, FVector& ShortDirection);
+
+	
 
 };

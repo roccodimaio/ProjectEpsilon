@@ -475,10 +475,23 @@ void APlayerCharacter::SkillAttack()
 {
 	if (ProjectileSkillClass)
 	{
+		
 		FVector ProjectileSkillSpawnLocation = SkillOneSpawnPoint->GetComponentLocation();
 		FRotator ProjectileSkillSpawnRotation = SkillOneSpawnPoint->GetComponentRotation();
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = this; 
+		
 
-		AProjectileSkillBase* TempProjectile = GetWorld()->SpawnActor<AProjectileSkillBase>(ProjectileSkillClass, ProjectileSkillSpawnLocation, ProjectileSkillSpawnRotation);
+		AProjectileSkillBase* TempProjectile = GetWorld()->SpawnActor<AProjectileSkillBase>(ProjectileSkillClass, ProjectileSkillSpawnLocation, ProjectileSkillSpawnRotation, SpawnParams);
+		//AProjectileSkillBase* TempProjectile = GetWorld()->SpawnActor<AProjectileSkillBase>(ProjectileSkillClass, ProjectileSkillSpawnLocation, ProjectileSkillSpawnRotation);
+
+		if (TempProjectile)
+		{
+			FVector LaunchDirection = ProjectileSkillSpawnRotation.Vector();
+
+			TempProjectile->FireInDirection(LaunchDirection);
+		}
 
 		TempProjectile->SetOwner(this);
 	}

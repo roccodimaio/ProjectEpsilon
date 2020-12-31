@@ -3,10 +3,14 @@
 
 #include "ProjectileSkillBase.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "particles/ParticleSystemComponent.h"
 #include "Engine/World.h"
+//#include "NiagaraComponent.h"
+//#include "NiagaraFunctionLibrary.h"
+//#include "NiagaraSystem.h"
 
 // Sets default values
 AProjectileSkillBase::AProjectileSkillBase()
@@ -14,15 +18,34 @@ AProjectileSkillBase::AProjectileSkillBase()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	ProjectileSkillMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileSkillMesh"));
-	RootComponent = ProjectileSkillMesh;
+	if (!RootComponent)
+	{
+		CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 
-	ProjectileSkillMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileSkillMovement"));
-	ProjectileSkillMovement->InitialSpeed = ProjectileSkillMovementSpeed;
+		CollisionComponent->InitSphereRadius(15.f);
 
-	ParticleSkillTrail = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ParticleTrail"));
-	ParticleSkillTrail->SetupAttachment(GetRootComponent());
+		RootComponent = CollisionComponent;
 
+	}
+	
+	if (!ProjectileSkillMesh)
+	{
+		ProjectileSkillMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileSkillMesh"));
+		ProjectileSkillMesh->SetupAttachment(GetRootComponent());
+	}
+	
+	if (!ProjectileSkillMovement)
+	{
+		ProjectileSkillMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileSkillMovement"));
+		ProjectileSkillMovement->InitialSpeed = ProjectileSkillMovementSpeed;
+	}
+	
+	if (!ParticleSkillTrail)
+	{
+		ParticleSkillTrail = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ParticleTrail"));
+		ParticleSkillTrail->SetupAttachment(GetRootComponent());
+	}
+	
 	InitialLifeSpan = 5.f;
 
 }
@@ -33,6 +56,12 @@ void AProjectileSkillBase::BeginPlay()
 	Super::BeginPlay();
 	
 	ProjectileSkillMesh->OnComponentHit.AddDynamic(this, &AProjectileSkillBase::OnHit);
+
+	//if (NiagaraEffect != nullptr)
+	//{
+		
+	//}
+
 }
 
 // Called every frame
@@ -59,5 +88,15 @@ void AProjectileSkillBase::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActo
 		// TODO camera shake
 		Destroy(); 
 	}
+}
+
+bool AProjectileSkillBase::TracePath(FHitResult& Hit, FVector& ShortDirection)
+{
+	return false;
+}
+
+void AProjectileSkillBase::FireInDirection(const FVector& FireDirection)
+{
+	ProjectileSkillMovement->Velocity = FireDirection * ProjectileSkillMovement->InitialSpeed;
 }
 
