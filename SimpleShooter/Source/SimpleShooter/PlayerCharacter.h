@@ -51,6 +51,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USceneComponent* SkillOneSpawnPoint;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USceneComponent* SkillTwoSpawnPoint;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class USphereComponent* RadarSphereCollisiion;
+
 
 
 protected:
@@ -101,6 +107,15 @@ public:
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* HeavyKatanaMontage;
 
+
+	UPROPERTY(EditAnywhere)
+	float RadarSphereRadius = 1000.f; 
+
+	bool bGetRadarInput = false; 
+
+	/** Missile blueprint class to fire */
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class ABaseMissile> MissileClass;
 
 	/*********************************************************************************/
 	/*** PLAYER STATS ***/
@@ -219,7 +234,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void DisableLeftFootCollision();
 
+	UFUNCTION(BlueprintCallable)
+	void GetEnemiesWithinRadar();
+		
+	void Skill02ButtonPressed();
 
+	void Skill02ButtonReleased();
 
 private:
 
@@ -259,6 +279,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class AProjectileSkillBase> ProjectileSkillClass;
 
+	//UPROPERTY(EditAnywhere)
+	//TSubclassOf<class ABaseMissile> MissileSkillClass;
+
 	UPROPERTY(EditAnywhere)
 	UUserWidget* EquippedWeaponHUD;
 
@@ -270,7 +293,7 @@ private:
 
 	FRotator ViewPointRotation;
 
-
+	ABaseAICharacter* BaseAICharacterTarget = nullptr;
 	
 	//UPROPERTY(EditDefaultsOnly)
 	//TSubclassOf<class AGun> GunClass;

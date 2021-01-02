@@ -13,10 +13,12 @@
 #include "Animation/AnimInstance.h"
 #include "PlayerCharacterAnimInstance.h"
 #include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 #include "BaseAICharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "ProjectileSkillBase.h"
+#include "BaseMissile.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -39,6 +41,12 @@ APlayerCharacter::APlayerCharacter()
 	SkillOneSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("SkillOneSpawnPoint"));
 	SkillOneSpawnPoint->SetupAttachment(GetMesh());
 
+	SkillTwoSpawnPoint = CreateDefaultSubobject<USceneComponent>(TEXT("SkillTwoSpawnPoint"));
+	SkillTwoSpawnPoint->SetupAttachment(GetMesh());
+
+	RadarSphereCollisiion = CreateDefaultSubobject<USphereComponent>(TEXT("RadarSphereCollision"));
+	RadarSphereCollisiion->SetupAttachment(GetRootComponent());
+
 }
 
 // Called when the game starts or when spawned
@@ -50,6 +58,7 @@ void APlayerCharacter::BeginPlay()
 	LeftHandCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RightFootCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	LeftFootCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RadarSphereCollisiion->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	RightHandCollision->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBeginRightHand);
 	RightHandCollision->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapEndRightHand);
@@ -93,9 +102,6 @@ void APlayerCharacter::BeginPlay()
 		}
 	}
 
-
-
-
 	// Spawn blueprint of Gun.h
 	//EquippedGun = GetWorld()->SpawnActor<AGun>(GunClass);
 
@@ -116,6 +122,12 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (bGetRadarInput)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Tick -> bGetRadarInput"));
+		GetEnemiesWithinRadar();
+	}
 
 }
 
@@ -138,6 +150,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("HeavyAttackButton"), IE_Pressed, this, &APlayerCharacter::HeavyAttackPressed);
 	PlayerInputComponent->BindAction(TEXT("HeavyAttackButton"), IE_Released, this, &APlayerCharacter::HeavyAttackReleased);
 	PlayerInputComponent->BindAction(TEXT("SkillButton"), IE_Pressed, this, &APlayerCharacter::SkillAttack);
+	PlayerInputComponent->BindAction(TEXT("Skill02Button"), IE_Pressed, this, &APlayerCharacter::Skill02ButtonPressed);
+	PlayerInputComponent->BindAction(TEXT("Skill02Button"), IE_Released, this, &APlayerCharacter::Skill02ButtonReleased);
 
 }
 
@@ -635,6 +649,105 @@ void APlayerCharacter::EnableLeftFootCollision()
 void APlayerCharacter::DisableLeftFootCollision()
 {
 	LeftFootCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void APlayerCharacter::GetEnemiesWithinRadar()
+{
+	
+	UE_LOG(LogTemp, Warning, TEXT("GetEnemiesWithinRadar"));
+	RadarSphereCollisiion->SetSphereRadius(RadarSphereRadius);
+
+	TArray<AActor*> OverlappingActors;
+	TArray<ABaseAICharacter*> OverlappingBaseAIActors;
+
+	// Store all AActors within the RadarSphereCollision
+	RadarSphereCollisiion->GetOverlappingActors(OverlappingActors);
+
+	for (AActor* Actor : OverlappingActors)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GetEnemiesWithinRadar->Loop through OverlappingActors"));
+		ABaseAICharacter* TempBaseAICharacter = Cast<ABaseAICharacter>(Actor);
+		if (TempBaseAICharacter != nullptr)
+		{
+			OverlappingBaseAIActors.Add(TempBaseAICharacter);
+		}
+	}
+
+	ABaseAICharacter* ClosestAICharacter = nullptr;
+
+	float currentClosestDistance = TNumericLimits<float>::Max();
+
+	for (ABaseAICharacter* BaseAIActor : OverlappingBaseAIActors)
+	{
+		float Distance = FVector::DistSquared(GetActorLocation(), BaseAIActor->GetActorLocation());
+		
+		if (Distance < currentClosestDistance)
+		{
+			currentClosestDistance = Distance;
+			ClosestAICharacter = BaseAIActor;
+		}
+	}
+
+	BaseAICharacterTarget = ClosestAICharacter;
+}
+
+void APlayerCharacter::Skill02ButtonPressed()
+{
+	UE_LOG(LogTemp, Warning, TEXT("APlayerCharacter->Skill02ButtonPressed()"));
+	bGetRadarInput = true;  
+	RadarSphereCollisiion->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+}
+
+void APlayerCharacter::Skill02ButtonReleased()
+{
+	UE_LOG(LogTemp, Warning, TEXT("APlayerCharacter->Skill02ButtonReleased()"));
+
+	bGetRadarInput = false;
+	RadarSphereCollisiion->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	if (MissileClass != NULL)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("APlayerCharacter->Skill02ButtonPressed()->MissileClass NOT NULL"));
+		
+		UWorld* const World = GetWorld();
+
+		if (World != NULL)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("APlayerCharacter->Skill02ButtonPressed()->World NOT NULL"));
+			FVector MissileSkillSpawnLocation = SkillTwoSpawnPoint->GetComponentLocation();
+			FRotator MissileSkillSpawnRotation = SkillTwoSpawnPoint->GetComponentRotation();
+
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = this;
+			SpawnParams.Instigator = GetInstigator();
+
+			ABaseMissile* FiredMissile = World->SpawnActor<ABaseMissile>(MissileClass, MissileSkillSpawnLocation, MissileSkillSpawnRotation, SpawnParams);
+
+			if (BaseAICharacterTarget)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("APlayerCharacter->Skill02ButtonPressed()->Target is BaseAICharacter"));
+				FiredMissile->SetTarget(BaseAICharacterTarget);
+			}
+			else
+			{
+				FiredMissile->SetTarget(nullptr);
+			}
+			
+			if (FiredMissile != nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("APlayerCharacter->Skill02ButtonPressed()->MissileFired!"));
+				FRotator MeshRot = FiredMissile->MissileMeshComponent->GetComponentRotation();
+				MeshRot.Roll = 0.f;
+				MeshRot.Pitch = 0.f;
+				MeshRot.Yaw = 0.f;
+				FiredMissile->MissileMeshComponent->SetRelativeRotation(MeshRot);
+			}
+		}
+	}
+
+	
+	
 }
 
 void APlayerCharacter::MoveForward(float AxisValue)

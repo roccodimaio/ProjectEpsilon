@@ -63,6 +63,7 @@ public:
 	void DelayLogic(float dTime);
 
 	void FindPlayer();
+	void SetTarget(AActor* Actor);
 	void UpdateTarget();
 
 	class UParticleSystemComponent* PlayExplosion(class UParticleSystem* ParticleSystem);

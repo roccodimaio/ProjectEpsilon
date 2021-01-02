@@ -59,8 +59,9 @@ ABaseMissile::ABaseMissile()
 void ABaseMissile::BeginPlay()
 {
 	Super::BeginPlay();
-	FindPlayer();
 
+	BoxCollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	
 	// Before we find our target, launch BaseMissile upwards
 	if (!bHasTargetPosition)
 	{
@@ -108,7 +109,7 @@ void ABaseMissile::Tick(float DeltaTime)
 				// If a target is NOT found, countine to move the missile actor upwards
 				if (bHasNoTarget)
 				{
-					ProjectileMovementComponent->Velocity = GetActorUpVector() * 200.f;
+					ProjectileMovementComponent->Velocity = GetActorUpVector() * MissileSpeed;
 					bHasNoTarget = false; 
 				}
 			}
@@ -140,6 +141,8 @@ void ABaseMissile::DelayLogic(float dTime)
 		if (DelayTimer > MissileBoosterDelay)
 		{
 			UpdateTarget();
+			BoxCollisionComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+			BoxCollisionComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
 			this->SetActorEnableCollision(true);
 			bHasFinishedDelay = true;
 		}
@@ -171,13 +174,23 @@ void ABaseMissile::FindPlayer()
 	}
 }
 
+void ABaseMissile::SetTarget(AActor* Actor)
+{
+	if (Actor != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("BaseMissile->SetTarget"));
+		target = Actor; 
+	}
+}
+
 void ABaseMissile::UpdateTarget()
 {
+	UE_LOG(LogTemp, Warning, TEXT("BaseMissile->UpdateTarget"));
 	if (!bHasTargetPosition)
 	{
-		if (PlayerCharacter != NULL)
+		if (target != NULL)
 		{
-			target = PlayerCharacter;
+			UE_LOG(LogTemp, Warning, TEXT("BaseMissile->UpdateTarget->Target != null"));
 			bHasTargetPosition = true;
 			bHasNoTarget = false; 
 
@@ -256,28 +269,10 @@ void ABaseMissile::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAct
 	ABaseAICharacter* AICharacter = Cast<ABaseAICharacter>(OtherActor);
 	AStaticMeshActor* GroundActor = Cast<AStaticMeshActor>(OtherActor);
 
-	if (FoundPlayerCharacter)
+	if (FoundPlayerCharacter || AICharacter || GroundActor)
 	{
-		PlayExplosion(ExplosionParticleSystem);
-		PlayExplosionSound(ExplosionSound);
-
-		Destroy();
+		Explode();
 	}
 
-	if (AICharacter)
-	{
-		PlayExplosion(ExplosionParticleSystem);
-		PlayExplosionSound(ExplosionSound);
-
-		Destroy();
-	}
-
-	if (GroundActor)
-	{
-		PlayExplosion(ExplosionParticleSystem);
-		PlayExplosionSound(ExplosionSound);
-
-		Destroy();
-	}
 }
 
