@@ -11,6 +11,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundBase.h"
 #include "EngineUtils.h"
+#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 ABaseMissile::ABaseMissile()
@@ -23,6 +24,10 @@ ABaseMissile::ABaseMissile()
 
 	MissileMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
 	MissileMeshComponent->SetupAttachment(GetRootComponent());
+
+	TrailParticleSystemComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("TrailParticleSystemComponent"));
+	TrailParticleSystemComponent->SetupAttachment(GetRootComponent());
+	
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectMovementComponent"));
 	ProjectileMovementComponent->UpdatedComponent = BoxCollisionComponent;
@@ -52,6 +57,7 @@ ABaseMissile::ABaseMissile()
 	MissileTurnSensativity = 200.f;
 	MissileSpeed = 200.f;
 	MissileBoosterDelay = 1.f;
+	GravityScale = 0.5f;
 
 }
 
@@ -60,12 +66,14 @@ void ABaseMissile::BeginPlay()
 {
 	Super::BeginPlay();
 
+	TrailParticleSystemComponent->DeactivateSystem();
 	BoxCollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	
 	// Before we find our target, launch BaseMissile upwards
 	if (!bHasTargetPosition)
 	{
 		ProjectileMovementComponent->Velocity = GetActorUpVector() * UpwardsLaunchDistance;
+		ProjectileMovementComponent->ProjectileGravityScale = 1.f;
 
 		this->SetActorEnableCollision(false);
 	}
@@ -143,6 +151,7 @@ void ABaseMissile::DelayLogic(float dTime)
 			UpdateTarget();
 			BoxCollisionComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 			BoxCollisionComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Overlap);
+			TrailParticleSystemComponent->ActivateSystem(true);
 			this->SetActorEnableCollision(true);
 			bHasFinishedDelay = true;
 		}

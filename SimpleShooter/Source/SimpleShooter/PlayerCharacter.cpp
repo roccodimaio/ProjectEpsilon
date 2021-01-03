@@ -489,25 +489,62 @@ void APlayerCharacter::SkillAttack()
 {
 	if (ProjectileSkillClass)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->SkillAttack->Class is valid"));
 		
 		FVector ProjectileSkillSpawnLocation = SkillOneSpawnPoint->GetComponentLocation();
 		FRotator ProjectileSkillSpawnRotation = SkillOneSpawnPoint->GetComponentRotation();
+
+		FVector TargetLocation = FVector(0.f);
+		FVector AimDirection = FVector(0.f);
+
 		FActorSpawnParameters SpawnParams;
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(GetOwner());
+		Params.AddIgnoredActor(MainWeapon);
+		Params.AddIgnoredActor(SecondaryWeapon);
+		// Ignore the Gun class when line tracing
+		Params.AddIgnoredActor(this);
+
 		SpawnParams.Owner = this;
 		SpawnParams.Instigator = this; 
-		
+	
 
+		AController* OwnerController = GetController();
+		OwnerController->GetPlayerViewPoint(ViewPointLocation, ViewPointRotation);
+
+		FHitResult Hit; 
+		// Calculate end point of line trace (distance bullet can travel from the camera)
+		FVector End = ViewPointLocation + ViewPointRotation.Vector() * Skill01MaxRange;
+
+		GetWorld()->LineTraceSingleByChannel(Hit, ViewPointLocation, End, ECollisionChannel::ECC_GameTraceChannel1, Params);
+
+		if (Hit.bBlockingHit)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->SkillAttack->Hit.bBlockingHit"));
+			TargetLocation = Hit.Location;
+			AimDirection = TargetLocation - ProjectileSkillSpawnLocation;
+			AimDirection.Normalize();
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->SkillAttack->Hit.bBlockingHit - ELSE"));
+			AimDirection = GetBaseAimRotation().Vector();
+			AimDirection.Normalize();
+		}
+			
+	
 		AProjectileSkillBase* TempProjectile = GetWorld()->SpawnActor<AProjectileSkillBase>(ProjectileSkillClass, ProjectileSkillSpawnLocation, ProjectileSkillSpawnRotation, SpawnParams);
 		//AProjectileSkillBase* TempProjectile = GetWorld()->SpawnActor<AProjectileSkillBase>(ProjectileSkillClass, ProjectileSkillSpawnLocation, ProjectileSkillSpawnRotation);
 
 		if (TempProjectile)
 		{
-			FVector LaunchDirection = ProjectileSkillSpawnRotation.Vector();
-
-			TempProjectile->FireInDirection(LaunchDirection);
+			UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->SkillAttack->TempProjectile"));
+			TempProjectile->SetOwner(this);
+			
+			// Ignore the Owner of the Gun class when line tracing
+			TempProjectile->FireInDirection(AimDirection);
+			TempProjectile->SetActorRotation(ViewPointRotation);
 		}
-
-		TempProjectile->SetOwner(this);
 	}
 }
 

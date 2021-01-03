@@ -42,6 +42,9 @@ public:
 	class UParticleSystem* ExplosionParticleSystem;
 
 	UPROPERTY(EditDefaultsOnly)
+	class UParticleSystemComponent* TrailParticleSystemComponent;
+
+	UPROPERTY(EditDefaultsOnly)
 	class USoundBase* ExplosionSound;
 
 	UPROPERTY(EditAnywhere)
@@ -58,6 +61,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	float MissileBoosterDelay;
+
+	UPROPERTY(EditAnywhere)
+	float GravityScale;
 
 	/*** FUNCTIONS ***/
 	void DelayLogic(float dTime);

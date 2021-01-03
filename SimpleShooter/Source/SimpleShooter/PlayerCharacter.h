@@ -111,6 +111,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	float RadarSphereRadius = 1000.f; 
 
+	float Skill01MaxRange = 10000.f;
+
 	bool bGetRadarInput = false; 
 
 	/** Missile blueprint class to fire */
