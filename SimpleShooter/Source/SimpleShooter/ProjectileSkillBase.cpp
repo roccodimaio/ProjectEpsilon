@@ -32,6 +32,7 @@ AProjectileSkillBase::AProjectileSkillBase()
 	{
 		ProjectileSkillMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileSkillMesh"));
 		ProjectileSkillMesh->SetupAttachment(GetRootComponent());
+		
 	}
 	
 	if (!ProjectileSkillMovement)
@@ -55,8 +56,9 @@ void AProjectileSkillBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	ProjectileSkillMesh->OnComponentHit.AddDynamic(this, &AProjectileSkillBase::OnHit);
-
+	this->OnActorHit.AddDynamic(this, &AProjectileSkillBase::OnHit);
+	//ProjectileSkillMesh->OnComponentHit.AddDynamic(this, &AProjectileSkillBase::OnHit);
+	
 	//if (NiagaraEffect != nullptr)
 	//{
 		
@@ -71,8 +73,10 @@ void AProjectileSkillBase::Tick(float DeltaTime)
 
 }
 
-void AProjectileSkillBase::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpule, const FHitResult& Hit)
+//void AProjectileSkillBase::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpule, const FHitResult& Hit)
+void AProjectileSkillBase::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
 {
+	UE_LOG(LogTemp, Warning, TEXT("ProjectileSkillBase"));
 	AActor* MyOwner = GetOwner();
 
 	if (MyOwner == nullptr)
@@ -82,6 +86,8 @@ void AProjectileSkillBase::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActo
 
 	if (OtherActor && OtherActor != this && OtherActor != MyOwner)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("ProjectileSkillBase->OnHit->If statement"));
+
 		UGameplayStatics::SpawnEmitterAtLocation(this, HitParticles, GetActorLocation());
 		UGameplayStatics::ApplyDamage(OtherActor, ProjectileSkillDamage, MyOwner->GetInstigatorController(), this, DamageType);
 		UGameplayStatics::PlaySoundAtLocation(this, HitSound, GetActorLocation());

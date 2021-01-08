@@ -78,6 +78,9 @@ public:
 	bool bIsAttacking = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsUsingSkill01 = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bCanAttack = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -106,7 +109,6 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	UAnimMontage* HeavyKatanaMontage;
-
 
 	UPROPERTY(EditAnywhere)
 	float RadarSphereRadius = 1000.f; 
@@ -140,7 +142,8 @@ public:
 	void SetWeaponEquippedStatus(EWeaponEquipedStatus Status);
 	EWeaponEquipedStatus GetWeaponEquippedStatus();
 	
-	/** Function to take damage */
+	/** Function to take damage 
+	*/
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 	/** Function to check if PlayerCharacter is dead */

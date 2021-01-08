@@ -65,9 +65,14 @@ public:
 	UPROPERTY(EditAnywhere)
 	float GravityScale;
 
+	UPROPERTY(EditAnywhere)
+	float Damage; 
+
+	UPROPERTY(EditAnywhere)
+	float ImpluseMultiplier;
+
 	/*** FUNCTIONS ***/
 	void DelayLogic(float dTime);
-
 	void FindPlayer();
 	void SetTarget(AActor* Actor);
 	void UpdateTarget();
@@ -96,5 +101,6 @@ private:
 	UFUNCTION()
 	virtual void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	AController* GetOwnerController() const;
 
 };

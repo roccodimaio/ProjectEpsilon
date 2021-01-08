@@ -15,6 +15,10 @@ public:
 	// Sets default values for this actor's properties
 	AProjectileSkillBase();
 
+	/*** VARIABLES ***/
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* InitialParticleSystem;
+
 	/*** COMPONENTS ***/
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* CollisionComponent;
@@ -80,7 +84,8 @@ private:
 	/** FUNCTIONS */
 
 	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpule, const FHitResult& Hit);
+	// void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpule, const FHitResult& Hit);
+	void OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
 
 	bool TracePath(FHitResult& Hit, FVector& ShortDirection);
 

@@ -58,6 +58,8 @@ ABaseMissile::ABaseMissile()
 	MissileSpeed = 200.f;
 	MissileBoosterDelay = 1.f;
 	GravityScale = 0.5f;
+	Damage = 20.f;
+	ImpluseMultiplier = 2.f;
 
 }
 
@@ -123,7 +125,7 @@ void ABaseMissile::Tick(float DeltaTime)
 			}
 			
 		}
-
+		
 		// Destroy the missile actor after 15 second countdown
 		LifeTimeCountdown -= 1 * DeltaTime;
 
@@ -154,6 +156,7 @@ void ABaseMissile::DelayLogic(float dTime)
 			TrailParticleSystemComponent->ActivateSystem(true);
 			this->SetActorEnableCollision(true);
 			bHasFinishedDelay = true;
+			ProjectileMovementComponent->ProjectileGravityScale = 0.f;
 		}
 	}
 }
@@ -269,11 +272,26 @@ void ABaseMissile::Explode()
 	PlayExplosion(ExplosionParticleSystem);
 	PlayExplosionSound(ExplosionSound);
 
+
 	Destroy();
 }
 
 void ABaseMissile::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	
+	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL))
+	{
+		if (OtherComp->IsSimulatingPhysics())
+		{
+			OtherComp->AddImpulseAtLocation(GetVelocity() * ImpluseMultiplier, GetActorLocation());
+		}
+
+		AController* OwnerController = GetOwnerController();
+		UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerController, this, UDamageType::StaticClass());
+		Explode();
+	}
+	
+	/**
 	APlayerCharacter* FoundPlayerCharacter = Cast<APlayerCharacter>(OtherActor);
 	ABaseAICharacter* AICharacter = Cast<ABaseAICharacter>(OtherActor);
 	AStaticMeshActor* GroundActor = Cast<AStaticMeshActor>(OtherActor);
@@ -282,6 +300,18 @@ void ABaseMissile::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAct
 	{
 		Explode();
 	}
+	*/
+}
 
+AController* ABaseMissile::GetOwnerController() const
+{
+	// Find owner of Gun
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+
+	// If owner is nullptr return
+	if (OwnerPawn == nullptr) return nullptr;
+
+	// Controller of owner found
+	return OwnerPawn->GetController();
 }
 

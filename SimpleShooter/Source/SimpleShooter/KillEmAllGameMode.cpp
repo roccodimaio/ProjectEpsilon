@@ -12,7 +12,7 @@ void AKillEmAllGameMode::PawnKilled(APawn* PawnKilled)
 {
 	Super::PawnKilled(PawnKilled);
 
-	UE_LOG(LogTemp, Warning, TEXT("AKillEmAllGameMode -> PawnKilled"));
+	//UE_LOG(LogTemp, Warning, TEXT("AKillEmAllGameMode -> PawnKilled"));
 
 	// If a Player was killed then PlayerController will not be nullptr;
 	APlayerController* PlayerController = Cast<APlayerController>(PawnKilled->GetController());
@@ -26,14 +26,14 @@ void AKillEmAllGameMode::PawnKilled(APawn* PawnKilled)
 	// Loop through all Pawns that have AShooterAIController as their AIController
 	for (ABaseAIController* Controller : TActorRange<ABaseAIController>(GetWorld()))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AKillEmAllGameMode -> PawnKilled -> ABaseAIController Loop"));
+		//UE_LOG(LogTemp, Warning, TEXT("AKillEmAllGameMode -> PawnKilled -> ABaseAIController Loop"));
 		
 		// If any Pawns with ABaseAIController are NOT dead then game is NOT over
-		UE_LOG(LogTemp, Warning, TEXT("BaseAICharacter->TakeDamage->Health <= 0 ->bIsDead %s"), Controller->IsDead() ? TEXT("True") : TEXT("False"));
+		//UE_LOG(LogTemp, Warning, TEXT("BaseAICharacter->TakeDamage->Health <= 0 ->bIsDead %s"), Controller->IsDead() ? TEXT("True") : TEXT("False"));
 		
 		if (!Controller->IsDead())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("AKillEmAllGameMode -> PawnKilled -> ABaseAIController Loop -> IF"));
+			//UE_LOG(LogTemp, Warning, TEXT("AKillEmAllGameMode -> PawnKilled -> ABaseAIController Loop -> IF"));
 			return;
 		}
 	}

@@ -20,6 +20,7 @@
 #include "ProjectileSkillBase.h"
 #include "BaseMissile.h"
 
+
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
@@ -489,7 +490,7 @@ void APlayerCharacter::SkillAttack()
 {
 	if (ProjectileSkillClass)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->SkillAttack->Class is valid"));
+		//UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->SkillAttack->Class is valid"));
 		
 		FVector ProjectileSkillSpawnLocation = SkillOneSpawnPoint->GetComponentLocation();
 		FRotator ProjectileSkillSpawnRotation = SkillOneSpawnPoint->GetComponentRotation();
@@ -502,8 +503,7 @@ void APlayerCharacter::SkillAttack()
 		Params.AddIgnoredActor(GetOwner());
 		Params.AddIgnoredActor(MainWeapon);
 		Params.AddIgnoredActor(SecondaryWeapon);
-		// Ignore the Gun class when line tracing
-		Params.AddIgnoredActor(this);
+		//Params.AddIgnoredActor(this);
 
 		SpawnParams.Owner = this;
 		SpawnParams.Instigator = this; 
@@ -520,25 +520,30 @@ void APlayerCharacter::SkillAttack()
 
 		if (Hit.bBlockingHit)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->SkillAttack->Hit.bBlockingHit"));
+			//UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->SkillAttack->Hit.bBlockingHit"));
 			TargetLocation = Hit.Location;
 			AimDirection = TargetLocation - ProjectileSkillSpawnLocation;
 			AimDirection.Normalize();
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->SkillAttack->Hit.bBlockingHit - ELSE"));
+			//UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->SkillAttack->Hit.bBlockingHit - ELSE"));
 			AimDirection = GetBaseAimRotation().Vector();
 			AimDirection.Normalize();
 		}
 			
-	
+		bIsUsingSkill01 = true; 
+		
 		AProjectileSkillBase* TempProjectile = GetWorld()->SpawnActor<AProjectileSkillBase>(ProjectileSkillClass, ProjectileSkillSpawnLocation, ProjectileSkillSpawnRotation, SpawnParams);
-		//AProjectileSkillBase* TempProjectile = GetWorld()->SpawnActor<AProjectileSkillBase>(ProjectileSkillClass, ProjectileSkillSpawnLocation, ProjectileSkillSpawnRotation);
+
+		if (TempProjectile->InitialParticleSystem)
+		{
+			UParticleSystemComponent* SpawnParticle = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), TempProjectile->InitialParticleSystem, ProjectileSkillSpawnLocation, ProjectileSkillSpawnRotation, 1.f);
+		}
 
 		if (TempProjectile)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->SkillAttack->TempProjectile"));
+			//UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->SkillAttack->TempProjectile"));
 			TempProjectile->SetOwner(this);
 			
 			// Ignore the Owner of the Gun class when line tracing

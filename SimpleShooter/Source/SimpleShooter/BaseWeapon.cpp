@@ -24,6 +24,7 @@ ABaseWeapon::ABaseWeapon()
 void ABaseWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+	this->SetActorEnableCollision(false);
 	
 }
 
