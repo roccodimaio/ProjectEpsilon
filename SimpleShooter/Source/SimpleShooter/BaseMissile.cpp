@@ -60,6 +60,8 @@ ABaseMissile::ABaseMissile()
 	GravityScale = 0.5f;
 	Damage = 20.f;
 	ImpluseMultiplier = 2.f;
+	ExplosionRadius = 1000.f;
+	ExplosionDamage = 15.f; 
 
 }
 
@@ -272,7 +274,6 @@ void ABaseMissile::Explode()
 	PlayExplosion(ExplosionParticleSystem);
 	PlayExplosionSound(ExplosionSound);
 
-
 	Destroy();
 }
 
@@ -286,8 +287,12 @@ void ABaseMissile::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAct
 			OtherComp->AddImpulseAtLocation(GetVelocity() * ImpluseMultiplier, GetActorLocation());
 		}
 
+		TArray<AActor*> ignoredActors;
+
 		AController* OwnerController = GetOwnerController();
-		UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerController, this, UDamageType::StaticClass());
+
+		//UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerController, this, UDamageType::StaticClass());
+		UGameplayStatics::ApplyRadialDamage(GetWorld(), Damage, GetActorLocation(), ExplosionRadius, UDamageType::StaticClass(), ignoredActors, this, nullptr, false, ECollisionChannel::ECC_Visibility);
 		Explode();
 	}
 	

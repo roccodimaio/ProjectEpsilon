@@ -124,9 +124,9 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bGetRadarInput)
+	if (bGetRadarInput && (bProcessingRadarData == false))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Tick -> bGetRadarInput"));
+		//UE_LOG(LogTemp, Warning, TEXT("Tick -> bGetRadarInput"));
 		GetEnemiesWithinRadar();
 	}
 
@@ -696,46 +696,89 @@ void APlayerCharacter::DisableLeftFootCollision()
 void APlayerCharacter::GetEnemiesWithinRadar()
 {
 	
-	UE_LOG(LogTemp, Warning, TEXT("GetEnemiesWithinRadar"));
+	bProcessingRadarData = true; 
+
+	//UE_LOG(LogTemp, Warning, TEXT("GetEnemiesWithinRadar"));
 	RadarSphereCollisiion->SetSphereRadius(RadarSphereRadius);
 
 	TArray<AActor*> OverlappingActors;
 	TArray<ABaseAICharacter*> OverlappingBaseAIActors;
 
-	// Store all AActors within the RadarSphereCollision
+	// Identify all actors within the RadarSphereCollision component and add to OverlappingActors array
 	RadarSphereCollisiion->GetOverlappingActors(OverlappingActors);
 
+
+	// Loop through OverlappingActors, cast to ABaseAICharacter and if successful add to OverlappingBaseAIActors
 	for (AActor* Actor : OverlappingActors)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GetEnemiesWithinRadar->Loop through OverlappingActors"));
-		ABaseAICharacter* TempBaseAICharacter = Cast<ABaseAICharacter>(Actor);
-		if (TempBaseAICharacter != nullptr)
+		ABaseAICharacter* BaseAICharacter = Cast<ABaseAICharacter>(Actor);
+
+		if (BaseAICharacter)
 		{
-			OverlappingBaseAIActors.Add(TempBaseAICharacter);
+			OverlappingBaseAIActors.Add(BaseAICharacter);
 		}
 	}
-
+	
 	ABaseAICharacter* ClosestAICharacter = nullptr;
 
-	float currentClosestDistance = TNumericLimits<float>::Max();
+	float currentClosestDistance = RadarSphereRadius;
+	FVector MyLocation = GetActorLocation();
+	
 
-	for (ABaseAICharacter* BaseAIActor : OverlappingBaseAIActors)
+	// Loop through all OverlappingActors
+	for (ABaseAICharacter* TempBaseAICharacter : OverlappingBaseAIActors)
 	{
-		float Distance = FVector::DistSquared(GetActorLocation(), BaseAIActor->GetActorLocation());
+		FVector DeltaVector = TempBaseAICharacter->GetActorLocation() - MyLocation;
+		FVector DistToTargetVector = DeltaVector;
+		float Delta = DeltaVector.Size();
+		float DotP = 0.f;
 		
-		if (Distance < currentClosestDistance)
+		DistToTargetVector.Normalize();
+
+		DotP = FVector::DotProduct(GetActorForwardVector(), DistToTargetVector);
+		UE_LOG(LogTemp, Warning, TEXT("DotP = %f"), DotP);
+
+		if (Delta < currentClosestDistance && (DotP >= 0))
 		{
-			currentClosestDistance = Distance;
-			ClosestAICharacter = BaseAIActor;
+			currentClosestDistance = Delta;
+			ClosestAICharacter = TempBaseAICharacter;
 		}
+
+		/**
+		float DotP = 0.f;
+		//FVector DistanceToTarget = Actor->GetActorLocation() - GetActorLocation();
+
+		float DistanceToTarget = FVector::Dist(GetActorLocation(), Actor->GetActorLocation());
+
+		//DistanceToTarget.Normalize();
+
+		//DotP = FVector::DotProduct(DistanceToTarget, GetActorForwardVector());
+		
+		// if DotP is greater than 0 then Actor is in front of PlayerCharacter.  (0 = to the side, -1 = behind)
+		if (DotP > 0)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("DotP >0"));
+			
+			float Distance = FVector::DistSquared(GetActorLocation(), Actor->GetActorLocation());
+			
+			if (Distance < currentClosestDistance)
+			{
+				currentClosestDistance = Distance;
+				ClosestAICharacter = Actor;
+			}
+		}
+
+		*/
+	
 	}
 
 	BaseAICharacterTarget = ClosestAICharacter;
+	bProcessingRadarData = false; 
 }
 
 void APlayerCharacter::Skill02ButtonPressed()
 {
-	UE_LOG(LogTemp, Warning, TEXT("APlayerCharacter->Skill02ButtonPressed()"));
+	//UE_LOG(LogTemp, Warning, TEXT("APlayerCharacter->Skill02ButtonPressed()"));
 	bGetRadarInput = true;  
 	RadarSphereCollisiion->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
@@ -754,7 +797,7 @@ void APlayerCharacter::Skill02ButtonReleased()
 		
 		UWorld* const World = GetWorld();
 
-		if (World != NULL)
+		if (World != NULL && bProcessingRadarData == false)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("APlayerCharacter->Skill02ButtonPressed()->World NOT NULL"));
 			FVector MissileSkillSpawnLocation = SkillTwoSpawnPoint->GetComponentLocation();
@@ -773,6 +816,7 @@ void APlayerCharacter::Skill02ButtonReleased()
 			}
 			else
 			{
+				UE_LOG(LogTemp, Warning, TEXT("APlayerCharacter->Skill02ButtonPressed()->Target is NOT BaseAICharacter"));
 				FiredMissile->SetTarget(nullptr);
 			}
 			

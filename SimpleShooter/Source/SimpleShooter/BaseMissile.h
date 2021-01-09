@@ -71,6 +71,12 @@ public:
 	UPROPERTY(EditAnywhere)
 	float ImpluseMultiplier;
 
+	UPROPERTY(EditAnywhere)
+	float ExplosionRadius;
+
+	UPROPERTY(EditAnywhere)
+	float ExplosionDamage;
+
 	/*** FUNCTIONS ***/
 	void DelayLogic(float dTime);
 	void FindPlayer();
@@ -93,7 +99,7 @@ private:
 
 	float LifeTimeCountdown;
 	bool bCanBeDestroyed;
-	
+
 	/*** FUNCTIONS ***/
 	void Explode();
 

@@ -299,6 +299,8 @@ private:
 	FRotator ViewPointRotation;
 
 	ABaseAICharacter* BaseAICharacterTarget = nullptr;
+
+	bool bProcessingRadarData = false;
 	
 	//UPROPERTY(EditDefaultsOnly)
 	//TSubclassOf<class AGun> GunClass;
