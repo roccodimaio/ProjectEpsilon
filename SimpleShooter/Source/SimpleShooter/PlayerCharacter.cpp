@@ -8,6 +8,7 @@
 #include "BaseMeleeWeapon.h"
 #include "BaseWeapon.h"
 #include "BaseWeapon_Gun.h"
+#include "BaseWeapon_Gun_Projectile.h"
 #include "Blueprint/UserWidget.h"
 #include "SimpleShooterPlayerController.h"
 #include "Animation/AnimInstance.h"
@@ -212,7 +213,9 @@ float APlayerCharacter::GetMaxHealth() const
 
 void APlayerCharacter::PullTrigger()
 {
-	ABaseWeapon_Gun* GunWeapon = Cast<ABaseWeapon_Gun>(ActiveWeapon); 
+	ABaseWeapon_Gun_Projectile* GunWeapon = Cast<ABaseWeapon_Gun_Projectile>(ActiveWeapon);
+	
+	//ABaseWeapon_Gun* GunWeapon = Cast<ABaseWeapon_Gun>(ActiveWeapon); 
 
 	if (GunWeapon != nullptr)
 	{
@@ -239,7 +242,8 @@ void APlayerCharacter::ActionButtonPressed()
 	case EPlayerStance::EPS_Rifle:
 		if (ActiveWeapon != nullptr)
 		{
-			ABaseWeapon_Gun* EquippedGun = Cast<ABaseWeapon_Gun>(ActiveWeapon);
+			ABaseWeapon_Gun_Projectile* EquippedGun = Cast<ABaseWeapon_Gun_Projectile>(ActiveWeapon);
+			//ABaseWeapon_Gun* EquippedGun = Cast<ABaseWeapon_Gun>(ActiveWeapon);
 
 			if (EquippedGun)
 			{
