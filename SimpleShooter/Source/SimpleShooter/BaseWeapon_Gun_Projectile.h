@@ -22,8 +22,15 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	USceneComponent* ProjectileSpawnPoint;
 
+	/*** VARIABLES ***/
+	FTimerHandle FireTimerHandle;
+	
 	/*** FUNCTIONS ***/
 	void PullTrigger();
+
+	void ReleaseTrigger();
+
+	void Fire();
 
 	
 
@@ -51,4 +58,10 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	float MaxRange = 1000.f;
+
+	UPROPERTY(EditAnywhere)
+	float ShotsPerSecond = 10.f;
+
+	UPROPERTY(EditAnywhere)
+	bool bIsAutomaticFire = false; 
 };

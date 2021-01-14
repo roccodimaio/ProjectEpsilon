@@ -56,7 +56,7 @@ void ABaseAICharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 float ABaseAICharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	UE_LOG(LogTemp, Warning, TEXT("BaseAICharacter->DamageTaken"));
+	//UE_LOG(LogTemp, Warning, TEXT("BaseAICharacter->DamageTaken"));
 	
 	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	if (Health - DamageToApply <= 0.0f)

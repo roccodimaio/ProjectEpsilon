@@ -83,7 +83,7 @@ void ABaseProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UP
 			OtherComp->AddImpulseAtLocation(GetVelocity() * 100.f, GetActorLocation());
 		}
 
-		UE_LOG(LogTemp, Warning, TEXT("ProjectileBase->OnHit->If"));
+		//UE_LOG(LogTemp, Warning, TEXT("ProjectileBase->OnHit->If"));
 		AActor* MyOwner = GetOwner();
 
 		UGameplayStatics::SpawnEmitterAtLocation(this, HitParticles, GetActorLocation());

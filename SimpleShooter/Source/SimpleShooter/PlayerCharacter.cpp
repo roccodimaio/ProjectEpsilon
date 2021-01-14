@@ -20,6 +20,7 @@
 #include "Engine/SkeletalMeshSocket.h"
 #include "ProjectileSkillBase.h"
 #include "BaseMissile.h"
+#include "TimerManager.h"
 
 
 // Sets default values
@@ -147,6 +148,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction(TEXT("SwapWeapon"), IE_Pressed, this, &APlayerCharacter::SwapWeapon);
 	PlayerInputComponent->BindAction(TEXT("PullTrigger"), IE_Pressed, this, &APlayerCharacter::PullTrigger);
+	PlayerInputComponent->BindAction(TEXT("PullTrigger"), IE_Released, this, &APlayerCharacter::ReleaseTrigger);
 	PlayerInputComponent->BindAction(TEXT("ActionButton"), IE_Pressed, this, &APlayerCharacter::ActionButtonPressed);
 	PlayerInputComponent->BindAction(TEXT("ActionButton"), IE_Released, this, &APlayerCharacter::ActionButtonReleased);
 	PlayerInputComponent->BindAction(TEXT("HeavyAttackButton"), IE_Pressed, this, &APlayerCharacter::HeavyAttackPressed);
@@ -220,8 +222,25 @@ void APlayerCharacter::PullTrigger()
 	if (GunWeapon != nullptr)
 	{
 		GunWeapon->PullTrigger(); 
+		
+		//GetWorld()->GetTimerManager().SetTimer(FireTimerHandle, this, &ABaseWeapon_Gun_Projectile::PullTrigger, 1 / ShotsPerSecond, true, -1.f);
 	}
 }
+
+void APlayerCharacter::ReleaseTrigger()
+{
+	ABaseWeapon_Gun_Projectile* GunWeapon = Cast<ABaseWeapon_Gun_Projectile>(ActiveWeapon);
+
+	//ABaseWeapon_Gun* GunWeapon = Cast<ABaseWeapon_Gun>(ActiveWeapon); 
+
+	UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->ReleaseTrigger"));
+
+	if (GunWeapon != nullptr)
+	{
+		GunWeapon->ReleaseTrigger();
+	}
+}
+
 
 void APlayerCharacter::ActionButtonPressed()
 {
@@ -306,6 +325,19 @@ void APlayerCharacter::ActionButtonPressed()
 
 void APlayerCharacter::ActionButtonReleased()
 {
+	if (PlayerStance == EPlayerStance::EPS_Rifle)
+	{
+		ABaseWeapon_Gun_Projectile* GunWeapon = Cast<ABaseWeapon_Gun_Projectile>(ActiveWeapon);
+
+		//ABaseWeapon_Gun* GunWeapon = Cast<ABaseWeapon_Gun>(ActiveWeapon); 
+
+		UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->ActionButtonReleased"));
+
+		if (GunWeapon != nullptr)
+		{
+			GunWeapon->ReleaseTrigger();
+		}
+	}
 }
 
 void APlayerCharacter::HeavyAttackPressed()

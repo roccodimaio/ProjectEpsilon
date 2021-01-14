@@ -132,6 +132,12 @@ public:
 	UPROPERTY(EditAnywhere)
 	float UnarmedDamage = 10.f;
 
+	//UPROPERTY(EditAnywhere)
+	//FTimerHandle FireTimerHandle;
+
+	UPROPERTY(EditAnywhere)
+	float ShotsPerSecond = 10.f;
+
 	
 	/*** FUNCTIONS ***/
 	void SetPlayerStance(EPlayerStance Stance);
@@ -163,6 +169,8 @@ public:
 
 	/** Function to shoot equipped BaseGun */
 	void PullTrigger();
+
+	void ReleaseTrigger();
 
 	UFUNCTION(BlueprintCallable)
 	void ActionButtonPressed();
