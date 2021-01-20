@@ -18,6 +18,10 @@ ABaseWeapon::ABaseWeapon()
 	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SkeletalMesh"));
 	Mesh->SetupAttachment(GetRootComponent()); 
 
+	Mesh->SetCollisionObjectType(ECC_WorldDynamic);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Mesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
 }
 
 // Called when the game starts or when spawned
@@ -80,12 +84,15 @@ void ABaseWeapon::UnequipWeapon(ACharacter* Character)
 		switch (WeaponType)
 		{
 		case EWeaponType::EPS_Katana:
+			// if WeapontType is EPS_Katana then attach it to the SwordSocket on PlayerCharacter
 			AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "SwordSocket");
 			break;
 		case EWeaponType::EPS_Rifle:
+			// if WeaponType is EPS_Rifle then attach it to the RifleSocket on PlayerCharacter
 			AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "RifleSocket");
 			break;
 		case EWeaponType::EPS_Pistol:
+			// if WeaponType is EPS_Pistol then attach it to the PistolSocket on PlayerCharacter
 			AttachToComponent(PlayerCharacter->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "PistolSocket");
 			break;
 		case EWeaponType::EPS_MAX:

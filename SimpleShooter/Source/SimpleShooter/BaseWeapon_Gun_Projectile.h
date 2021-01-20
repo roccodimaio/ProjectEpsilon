@@ -32,6 +32,22 @@ public:
 
 	void Fire();
 
+	virtual FVector GetAdjustedAim() const;
+
+	/** get the muzzle location of the weapon */
+	FVector GetMuzzleLocation() const;
+
+	/** get direction of weapon's muzzle */
+	FVector GetMuzzleDirection() const;
+
+	/** get the originating location for camera damage */
+	FVector GetCameraDamageStartLocation(const FVector& AimDir) const;
+
+	/** find hit */
+	FHitResult WeaponTrace(const FVector& TraceFrom, const FVector& TraceTo) const;
+
+	bool ProjectileTrace(FHitResult& Hit);
+
 	
 
 private:

@@ -19,7 +19,9 @@ ABaseProjectile::ABaseProjectile()
 	{
 		CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollisionComponent"));
 		CollisionComponent->InitSphereRadius(15.f);
+		CollisionComponent->bTraceComplexOnMove = true;
 		SetRootComponent(CollisionComponent);
+		
 	}
 
 	if (!ProjectileMesh)
@@ -32,6 +34,8 @@ ABaseProjectile::ABaseProjectile()
 	{
 		ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
 		ProjectileMovement->InitialSpeed = ProjectileMovementSpeed;
+		ProjectileMovement->bRotationFollowsVelocity = true;
+		ProjectileMovement->ProjectileGravityScale = 0.f;
 	}
 
 	if (!ParticleTrail)
@@ -50,7 +54,16 @@ ABaseProjectile::ABaseProjectile()
 void ABaseProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	CollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	ProjectileMovement->MaxSpeed = ProjectileMovementSpeed;
+
+	CollisionComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	CollisionComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	CollisionComponent->SetCollisionObjectType(ECollisionChannel::ECC_GameTraceChannel1);
+	CollisionComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	CollisionComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Block);
+	CollisionComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
+	
+
 	ProjectileMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	ParticleTrail->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	
@@ -87,7 +100,17 @@ void ABaseProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UP
 		AActor* MyOwner = GetOwner();
 
 		UGameplayStatics::SpawnEmitterAtLocation(this, HitParticles, GetActorLocation());
-		UGameplayStatics::ApplyDamage(OtherActor, ProjectileDamage, MyOwner->GetInstigatorController(), this, DamageType);
+
+		if (MyOwner)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ProjectileBase->OnHit->MyOwner TRUE"));
+			UGameplayStatics::ApplyDamage(OtherActor, ProjectileDamage, MyOwner->GetInstigatorController(), this, DamageType);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ProjectileBase->OnHit->MyOwner FALSE"));
+		}
+		
 		UGameplayStatics::PlaySoundAtLocation(this, HitSound, GetActorLocation());
 		// TODO camera shake
 		Destroy();

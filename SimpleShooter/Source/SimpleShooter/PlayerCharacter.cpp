@@ -75,24 +75,50 @@ void APlayerCharacter::BeginPlay()
 	LeftFootCollision->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBeginLeftFoot);
 	LeftFootCollision->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapEndLeftFoot);
 
-
-
 	Health = MaxHealth;
 
 	PlayerStance = EPlayerStance::EPS_Unarmed;
 
-	// Spawn MainWeapon
-	MainWeapon = GetWorld()->SpawnActor<ABaseWeapon>(MainWeaponClass);
-
-	// Attach MainWeapon to the appropriate Socket
-	MainWeapon->UnequipWeapon(this);
-
-	// Spawn Secondary Weapon
-	SecondaryWeapon = GetWorld()->SpawnActor<ABaseWeapon>(SecondaryWeaponClass);
-
-	// Attach SecondaryWeapon to the appropriate Socket
-	SecondaryWeapon->UnequipWeapon(this);
-
+	if (MainWeaponClass != NULL)
+	{
+		// Spawn MainWeapon
+		MainWeapon = GetWorld()->SpawnActor<ABaseWeapon>(MainWeaponClass);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("*** NO MAIN WEAPON CLASS SELECTED ***"));
+	}
+	
+	if (MainWeapon != nullptr)
+	{
+		// Attach MainWeapon to the appropriate Socket
+		MainWeapon->UnequipWeapon(this);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("*** NO MAIN WEAPON ***"));
+	}
+	
+	if (SecondaryWeaponClass != NULL)
+	{
+		// Spawn Secondary Weapon
+		SecondaryWeapon = GetWorld()->SpawnActor<ABaseWeapon>(SecondaryWeaponClass);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("*** NO SECONDARY WEAPON CLASS SELECTED ***"));
+	}
+	
+	if (SecondaryWeapon != nullptr)
+	{
+		// Attach SecondaryWeapon to the appropriate Socket
+		SecondaryWeapon->UnequipWeapon(this);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("*** NO SECONDARY WEAPON ***"));
+	}
+	
 	OwnerAnimInstance = GetMesh()->GetAnimInstance();
 
 	if (OwnerAnimInstance != nullptr)
@@ -126,7 +152,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bGetRadarInput && (bProcessingRadarData == false))
+	if ((bGetRadarInput == true) && (bProcessingRadarData == false))
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Tick -> bGetRadarInput"));
 		GetEnemiesWithinRadar();
@@ -558,13 +584,14 @@ void APlayerCharacter::SkillAttack()
 		{
 			//UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->SkillAttack->Hit.bBlockingHit"));
 			TargetLocation = Hit.Location;
-			AimDirection = TargetLocation - ProjectileSkillSpawnLocation;
+			AimDirection = (TargetLocation - ProjectileSkillSpawnLocation).GetSafeNormal();
 			AimDirection.Normalize();
 		}
 		else
 		{
 			//UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter->SkillAttack->Hit.bBlockingHit - ELSE"));
-			AimDirection = GetBaseAimRotation().Vector();
+			TargetLocation = Hit.TraceEnd;
+			AimDirection = (TargetLocation - ProjectileSkillSpawnLocation).GetSafeNormal();
 			AimDirection.Normalize();
 		}
 			

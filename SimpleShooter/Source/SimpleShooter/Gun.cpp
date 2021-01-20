@@ -79,7 +79,7 @@ void AGun::PullTrigger()
 		}
 
 		//Draw debut point to show point of bullet impact (location of object hit)
-		//DrawDebugPoint(GetWorld(), OutHit.Location, 20, FColor::Red, true);
+		//DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Red, true);
 	}
 
 	// Draw debug view port

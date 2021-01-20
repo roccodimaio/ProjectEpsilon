@@ -40,6 +40,10 @@ private:
 	TSubclassOf<UUserWidget> GunHUDClass;
 
 	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUserWidget> EquippedWeaponHUDClass;
+
+
+	UPROPERTY(EditAnywhere)
 	float RestartDelay = 5.f;
 
 	FTimerHandle RestartTimer;
@@ -49,6 +53,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	UUserWidget* GunHUD;
+
+	UPROPERTY(EditAnywhere)
+	UUserWidget* EquippedWeaponHUD;
 
 public: 
 

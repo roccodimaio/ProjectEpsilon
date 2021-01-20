@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "BaseWeapon.h"
 #include "BaseWeapon_Gun.h"
+#include "BaseWeapon_Gun_Projectile.h"
 
 
 ASimpleShooterPlayerController::ASimpleShooterPlayerController()
@@ -19,7 +20,12 @@ void ASimpleShooterPlayerController::BeginPlay()
 
 	// Create LoseScreen widget
 	HUD = CreateWidget(this, HUDClass);
-	GunHUD = CreateWidget(this, GunHUDClass);
+	//GunHUD = CreateWidget(this, GunHUDClass);
+	if (EquippedWeaponHUDClass != nullptr)
+	{
+		EquippedWeaponHUD = CreateWidget(this, EquippedWeaponHUDClass);
+	}
+	
 
 	if (HUD != nullptr)
 	{
@@ -33,28 +39,29 @@ void ASimpleShooterPlayerController::DisplayWeaponHUD(ABaseWeapon* Weapon)
 {
 	if (Weapon != nullptr)
 	{
-		ABaseWeapon_Gun* EquippedGun = Cast<ABaseWeapon_Gun>(Weapon);
+		ABaseWeapon_Gun_Projectile* EquippedWeapon = Cast<ABaseWeapon_Gun_Projectile>(Weapon);
+		//ABaseWeapon* EquippedWeapon = Cast<ABaseWeapon>(Weapon);
 
-		if (EquippedGun)
+		if (EquippedWeapon)
 		{
-			if (GunHUD != nullptr)
+			if (EquippedWeaponHUD != nullptr)
 			{
-				GunHUD->AddToViewport();
+				EquippedWeaponHUD->AddToViewport();
 			}
 		}
 		else
 		{
-			if (GunHUD != nullptr)
+			if (EquippedWeaponHUD != nullptr)
 			{
-				GunHUD->RemoveFromViewport(); 
+				EquippedWeaponHUD->RemoveFromViewport();
 			}
 		}
 	}
 	else
 	{
-		if (GunHUD != nullptr)
+		if (EquippedWeaponHUD != nullptr)
 		{
-			GunHUD->RemoveFromViewport();
+			EquippedWeaponHUD->RemoveFromViewport();
 		}
 	}
 }
@@ -62,7 +69,7 @@ void ASimpleShooterPlayerController::DisplayWeaponHUD(ABaseWeapon* Weapon)
 void ASimpleShooterPlayerController::GameHasEnded(AActor* EndGameFocus, bool bIsWinner)
 {
 	Super::GameHasEnded(EndGameFocus, bIsWinner);
-	UE_LOG(LogTemp, Warning, TEXT("ASimpleShooterPlayerController -> GameHasEnded"));
+	//UE_LOG(LogTemp, Warning, TEXT("ASimpleShooterPlayerController -> GameHasEnded"));
 	
 	// Remove HUD from Viewport once game is over (dead or win)
 	HUD->RemoveFromViewport();
